@@ -1,0 +1,3022 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta name="color-scheme" content="dark">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="./images/Windowslogo.svg" />
+    <title>Windows 10 Simulation</title>
+    <style>
+      .mdl2-icon {
+        font-family: "Segoe MDL2 Assets";
+        font-size: 24px; /* adjust as needed */
+        line-height: 1;
+        vertical-align: middle;
+        /* Optionally, add color or spacing */
+        color: inherit;
+        margin-right: 5px;
+      }
+
+      /* Reset and Global Settings */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        user-select: none;
+      }
+      /* Desktop Background */
+      #desktop {
+        width: 100%;
+        height: 100%;
+        background: url("./images/wallpaper2.png")
+          no-repeat center center fixed;
+        background-size: cover;
+        position: relative;
+        overflow: hidden; /* Keeps overflow hidden */
+      }
+      /* Taskbar Styling */
+      #taskbar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 40px;
+        background-color: rgba(30, 30, 30, 0.8);
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        color: white;
+        z-index: 1000;
+        backdrop-filter: blur(10px); /* Taskbar Blur */
+        overflow: visible;
+      }
+      #start-button {
+        width: 80px;
+         height: 100%;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         background-color: rgba(50, 50, 50, 0.7);
+         cursor: pointer;
+         border-radius: 2px;
+        margin-right: 10px;
+         /* Optionally add padding so the text doesn't overlay the image */
+         padding-left: 5px;
+      }
+
+        .start-icon {
+         width: 24px;
+         height: 24px;
+          margin-right: 5px;
+          vertical-align: middle;
+      }
+
+      #start-button:hover {
+        background-color: rgba(50, 50, 50, 1);
+      }
+      /* Taskbar Icons */
+      #taskbar-icons {
+        display: flex;
+        gap: 10px;
+        cursor: pointer;
+        width: 70px;
+        height: 70px; /* Use this only if necessary to control height */
+        align-items: center;
+        box-sizing: border-box;
+      }
+      /* Make Explorer, Edge, and Store icons clickable */
+      #explorer-app,
+      #edge-app,
+      #store-app {
+        cursor: pointer;
+      }
+      #explorer-app:hover {
+        background-color: rgba(50, 50, 50, 1);
+      }
+      #edge-app:hover {
+        background-color: rgba(50, 50, 50, 1);
+      }
+      #store-app:hover {
+        background-color: rgba(50, 50, 50, 1);
+      }
+      #notepad-app:hover {
+        background-color: rgba(50, 50, 50, 1);
+      }
+      /* Clock Styling */
+      #clock-container {
+        text-align: center;
+        color: white;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      #clock-time {
+        font-size: 14px; 
+        font-weight: bold;
+      }
+
+      #clock-date {
+        font-size: 12px;
+        margin-top: 2px;
+      }
+
+      #clock {
+        padding: 0 10px;
+        font-weight: bold;
+        font-size: 14px;
+      }
+      #clock:hover {
+        background-color: rgba(50, 50, 50, 1);
+      }
+      /* Right-hand container for Wi‑Fi, Sound, Battery, Clock and Action Center Toggle */
+      #taskbar-right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+      }
+      /* Battery Flyout Styling */
+      #battery-flyout {
+        position: absolute;
+        background-color: rgba(50, 50, 50, 0.7);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 1100;
+        font-size: 14px;
+        backdrop-filter: blur(10px);
+      }
+      /* Sound Flyout Styling */
+      #sound-flyout {
+        position: absolute;
+        background-color: rgba(50, 50, 50, 0.7);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 1100;
+        font-size: 14px;
+        backdrop-filter: blur(10px);
+      }
+      /* Wi‑Fi Flyout Styling (New) */
+      #wifi-flyout {
+        position: absolute;
+        background-color: rgba(50, 50, 50, 0.7);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 1100;
+        font-size: 14px;
+        backdrop-filter: blur(10px);
+      }
+      /* Hidden Icons Flyout Styling */
+#hidden-icons-flyout {
+  position: absolute;
+  display: none;               /* initially hidden */
+  background-color: rgba(50, 50, 50, 0.7);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  font-size: 14px;
+  z-index: 1100;
+  backdrop-filter: blur(10px);
+  /* Animation Settings */
+  opacity: 0;
+  transform: translateY(20px); /* Start slightly lower */
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  pointer-events: none;
+}
+
+#hidden-icons-flyout.open {
+  opacity: 1;
+  transform: translateY(0); /* Moves to its natural position */
+  pointer-events: auto;
+}
+
+      /* Start Menu Styling */
+      #start-menu {
+        position: fixed;
+        bottom: 40px;
+        left: 10px;
+        width: 300px;
+        background-color: rgba(50, 50, 50, 0.7);
+        color: white;
+        /* display: none;  Display None */
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        z-index: 900;
+        font-size: 14px;
+        backdrop-filter: blur(10px); /* Start Menu Blur */
+        transform: translateY(20px); /* Sliding Animation */
+        opacity: 0; /* Sliding Animation */
+        transition: transform 0.3s ease, opacity 0.3s ease; /* Sliding Animation */
+        pointer-events: none; /* Sliding Animation */
+      }
+      #start-menu.open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
+      #start-menu h3 {
+        margin-bottom: 10px;
+        border-bottom: 1px solid #555;
+        padding-bottom: 5px;
+      }
+      #start-menu ul {
+        list-style: none;
+      }
+      /* Added IDs for Documents and Photos for new functionality */
+      #start-menu li {
+        padding: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      #start-menu li:hover {
+        background-color: rgba(100, 100, 100, 0.3);
+      }
+      /* Start Context Menu Styles */
+/* Make sure your start menu context menu has no bullet points and no extra spacing */
+#start-context-menu {
+  position: absolute;
+  display: none; /* Hidden by default */
+  background: rgba(40, 40, 40, 0.95);
+  border: 1px solid #333;
+  border-radius: 3px;
+  padding: 5px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  color: white;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 14px;
+  z-index: 1000;
+  margin: 0;
+  list-style: none; /* Removes bullet points */
+  backdrop-filter: blur(10px);
+}
+
+/* Style each list item */
+#start-context-menu li {
+  list-style-type: none; /* For extra safety */
+  padding: 5px 15px;
+  cursor: pointer;
+  margin: 0;
+}
+#start-context-menu li:hover {
+  background: rgba(0, 120, 215, 0.7);
+}
+#start-context-menu li a {
+  color: white;
+  text-decoration: none;
+  display: block;
+}
+
+/* If you use empty items as separators, style them accordingly */
+#start-context-menu li.separator {
+  border-top: 1px solid #555;
+  margin: 5px 0;
+  padding: 0;
+  list-style: none;
+}
+
+
+      /* Base Window Styling (for all app windows) */
+      .window {
+        position: absolute;
+        top: 100px;
+        left: 100px;
+        width: 400px;
+        background: rgb(0, 0, 0);
+        border: 1px solid gray;
+        border-radius: 3px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        z-index: 800;
+      }
+      .window-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0078d7;
+  color: white;
+  padding: 5px 10px;
+}
+      .window-title {
+        font-weight: bold;
+        margin-left: 5px;
+      }
+      /* Base style for title bar buttons */
+/* Container for title bar buttons */
+.window-controls {
+  display: flex;
+  gap: 4px; /* Adjust gap between buttons */
+  align-items: center;
+}
+
+/* Enlarged style for title bar buttons */
+.window-controls button {
+  width: 48px;             /* Increased width */
+  height: 24px;            /* Increased height */
+  font-size: 18px;         /* Enlarged icon size */
+  padding: 0;              /* Remove internal padding if not needed */
+  border: none;
+  background: transparent;
+  color: white;
+  border-radius: 2px;      /* Slight rounding for a modern look */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Hover state for all buttons */
+.window-controls button:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Active state for pressed button effect */
+.window-controls button:active {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Specific styling for the close button */
+.window-controls button.close-button:hover {
+  background-color: #e81123;  /* Red background on hover for close */
+  color: white;
+}
+
+/* Remove focus outline for a cleaner appearance */
+.window-controls button:focus {
+  outline: none;
+}
+
+
+      .window-body {
+        padding: 10px;
+        color: rgb(255, 255, 255);
+        font-size: 14px;
+      }
+      .window-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 5px;
+        vertical-align: middle;
+      }
+
+      /* Settings App Specific Styles */
+      :root {
+  --accent-color: #0078d7;
+  --sidebar-bg: rgb(68, 68, 68);
+  --sidebar-text: #ffffff;
+  --sidebar-hover: #2b2b2b;
+}
+      #settings-window {
+        width: 600px;
+        height: 400px;
+      }
+      .settings-app-body {
+        display: flex;
+        height: calc(100% - 30px);
+      }
+  .settings-sidebar {
+  width: 30%;
+  background-color: rgba(68, 68, 68, 0.5); /* 50% opacity */
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  padding: 10px;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  overflow-y: auto;
+}
+
+
+      .settings-sidebar ul {
+        list-style: none;
+        padding: 0;
+      }
+      .settings-sidebar li {
+        padding: 12px 16px;
+        cursor: pointer;
+        border-radius: 3px;
+        margin-bottom: 5px;
+        border-left: 4px solid transparent;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        color: var(--sidebar-text);
+      }
+      .settings-sidebar li:hover {
+        background-color: var(--sidebar-hover);
+      }
+      .settings-sidebar li.active {
+        background-color: var(--sidebar-hover);
+        border-left-color: var(--accent-color);
+      }
+      .settings-content {
+        width: 70%;
+        padding: 20px;
+        overflow-y: auto;
+        background-color: #1e1e1e; /* Dark background similar to Windows 10 dark theme */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        color: #ffffff;
+      }
+
+      .settings-content h4 {
+  margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: 500;
+  border-bottom: 1px solid #444;
+  padding-bottom: 6px;
+}
+
+.settings-content p {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Smooth transition for the entire Settings app panel */
+#settings-window .window-body {
+  transition: all 0.3s ease;
+}
+
+/* For sidebar list items (see above snippet, already includes a transition) */
+
+.settings-content,
+.settings-sidebar li {
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+
+      #desktop-context-menu,
+      #taskbar-context-menu {
+        position: absolute;
+        display: none;
+        background: rgba(40, 40, 40, 0.95);
+        border: 1px solid #333;
+        border-radius: 3px;
+        padding: 5px 0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        color: white;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px;
+        z-index: 2000;
+        min-width: 180px;
+        backdrop-filter: blur(10px);
+      }
+
+#desktop-context-menu ul,
+#taskbar-context-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#desktop-context-menu li,
+#taskbar-context-menu li {
+  padding: 5px 15px;
+  cursor: pointer;
+}
+
+#desktop-context-menu li:hover,
+#taskbar-context-menu li:hover {
+  background: rgba(0, 120, 215, 0.7);
+}
+
+      /* File Explorer Specific Styles */
+      #explorer-window {
+        width: 600px;
+        height: 400px;
+      }
+      .explorer-body {
+        display: flex;
+        height: calc(100% - 30px);
+      }
+      .explorer-sidebar {
+        width: 30%;
+        /* background-color: #f1f1f1; */
+        background-color: rgb(68, 68, 68);
+        padding: 10px;
+        border-right: 1px solid #ccc;
+        overflow-y: auto;
+      }
+      .explorer-sidebar ul {
+        list-style: none;
+        padding: 0;
+      }
+      .explorer-sidebar li {
+        padding: 8px;
+        cursor: pointer;
+        border-radius: 3px;
+        margin-bottom: 5px;
+      }
+      .explorer-sidebar li:hover,
+      .explorer-sidebar li.active {
+        /* background-color: #ddd; */
+        background-color: gray;
+      }
+      .explorer-content {
+        width: 70%;
+        padding: 10px;
+        overflow-y: auto;
+      }
+      .explorer-content ul {
+        list-style: none;
+        padding: 0;
+      }
+      .explorer-content li {
+        padding: 5px;
+        border-bottom: 1px solid #eee;
+      }
+      /* Microsoft Edge App Specific Styles */
+      .edge-nav {
+        display: flex;
+        align-items: center;
+        padding: 5px;
+        /* background-color: #f1f1f1; */
+        background-color: rgb(68, 68, 68);
+        border-bottom: 1px solid #ccc;
+      }
+      .edge-nav button {
+        margin-right: 5px;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+      #edge-address {
+        flex: 1;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+      .edge-content {
+        height: calc(100% - 40px);
+      }
+      /* Action Center Specific Styles */
+      #action-center {
+  position: fixed;
+  top: 0;
+  right: -320px; /* Hidden by default; slides in */
+  width: 320px;
+  height: calc(100% - 40px);
+  background: rgba(32, 32, 32, 0.95); /* Dark and opaque */
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.5);
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  font-family: "Segoe UI", sans-serif;
+  backdrop-filter: blur(10px);
+  z-index: 120;
+}
+
+    #action-center.open {
+      right: 0;
+    }
+
+/* Action Center Header */
+    #action-center-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background-color: rgba(32, 32, 32, 0.95);
+      border-bottom: 1px solid #444;
+    }
+      #action-center-header h4 {
+        margin: 0;
+      }
+      #action-center-header button {
+        background: transparent;
+        border: none;
+        color: rgb(255, 255, 255);
+        font-size: 18px;
+        cursor: pointer;
+      }
+      #action-center-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+      .notification {
+        /* background: #fff; */
+        background: rgb(68, 68, 68);
+        padding: 8px;
+        margin-bottom: 8px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+      }
+/* Footer (quick toggles) */
+#action-center-footer {
+  padding: 10px;
+  border-top: 1px solid #444;
+  background-color: rgba(32, 32, 32, 0.95);
+  display: flex;
+  justify-content: space-around;
+  border-bottom: none;
+}
+.quick-toggle {
+  flex: 1;
+  padding: 8px;
+  margin: 0 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: rgba(68, 68, 68, 0.95); /* Dark button background */
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+}
+
+.quick-toggle.active {
+  background-color: #0078d7;
+  border-color: #0078d7;
+}
+      /* Microsoft Store Specific Styles */
+      .store-body {
+        padding: 10px;
+        /* background: #fff; */
+        background: black;
+        overflow-y: auto;
+      }
+      .store-search input {
+        width: 100%;
+        padding: 5px;
+        /* border: 1px solid #ccc; */
+        border: 1px solid #357EC7;
+        border-radius: 3px;
+      }
+      .store-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .store-item {
+        border: 1px solid #357EC7;
+        border-radius: 5px;
+        padding: 5px;
+        text-align: center;
+        /* background: #f9f9f9; */
+        background: rgb(68, 68, 68);
+        cursor: pointer;
+      }
+      .store-item img {
+        width: 80px;
+        height: 80px;
+      }
+      .store-item div {
+        font-size: 12px;
+        margin-top: 5px;
+      }
+      /* Modal for Store App Details */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+      }
+      .modal-content {
+        background: black;
+        padding: 20px;
+        border-radius: 5px;
+        width: 300px;
+        text-align: center;
+        position: relative;
+      }
+      .modal-close {
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        cursor: pointer;
+        font-size: 18px;
+      }
+      /* recycle bin stuff */
+      .desktop-icon {
+        position: absolute;
+        width: 80px;
+        text-align: center;
+        cursor: pointer;
+        user-select: none;
+        text-shadow: 1px 1px 2px black;
+      }
+      #recycle-bin-icon {
+        left: 20px;
+        top: 80px; /* Positioned above the taskbar; adjust as needed */
+      }
+      .desktop-icon img {
+        width: 64px;
+        height: 64px;
+        display: block;
+        margin: 0 auto;
+      }
+      .desktop-icon span {
+        font-size: 14px;
+        color: white;
+      }
+      #notepad-textarea {
+        border: none;
+        outline: none;
+      /* Optional: simulate Notepad's plain look */
+        background: rgb(68, 68, 68);
+        color: white;
+        line-height: 1.5;
+      }
+      .start-menu-icon {
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+      .start-menu-title-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+    }   
+    /* Startup Screen Styles */
+      #startup-screen {
+        position: fixed;
+        z-index: 3000; /* Higher than any of your windows and overlays */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000; /* or any background that matches your simulation */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+        transition: opacity 0.5s ease-out;
+      }
+
+      #startup-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      }
+
+/* Optional: Style for the logo */
+.startup-logo {
+  width: 100px;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.selection-rectangle {
+  position: absolute;
+  background-color: rgba(0, 120, 215, 0.4);  /* Translucent blue fill */
+  border: 1px solid rgba(0, 120, 215, 0.8);   /* Stronger blue border */
+  pointer-events: none;                      /* Allow clicks to pass through */
+  z-index: 2000;                             /* Ensure it appears above desktop icons */
+}
+
+
+.desktop-icon.selected {
+  outline: 2px solid rgba(0, 120, 215, 0.8); /* Blue outline */
+  background-color: rgba(0, 120, 215, 0.2); /* Light blue highlight */
+}
+
+#watermark {
+  position: fixed;
+  right: 10px;          /* 10px spacing from the right edge */
+  bottom: 10px;         /* 10px spacing from the bottom */
+  color: rgba(255, 255, 255, 0.7); /* White text with slight transparency */
+  font-size: 12px;      /* Adjust size as needed */
+  font-family: "Segoe UI", sans-serif;
+  text-align: right;    /* Ensure the text is right-aligned */
+  pointer-events: none; /* Ensure clicks go through */
+  z-index: 990;         /* Make sure it is on top of the desktop background */
+  line-height: 1.2;     /* Control spacing between lines */
+}
+
+    </style>
+  </head>
+  <body>
+      <!-- Startup Screen -->
+    <div id="startup-screen">
+      <img src="./images/Windowslogo.svg" alt="Loading Logo" class="startup-logo" draggable="false"/>
+      <h1>Booting...</h1>
+    </div>
+    <div id="desktop">
+      <!-- Start Menu -->
+      <div id="start-menu">
+        <h3 style="display: flex; align-items: center;">
+          <img src="./images/Windowslogo.svg" alt="Start Icon" class="start-menu-title-icon" draggable="false"/>
+          <span>Start Menu</span>
+        </h3>        
+        <ul>
+          <li id="start-menu-settings" style="display: flex; align-items: center;">
+            <!--<img src="./images/settings.png" alt="Settings Icon" class="start-menu-icon" /> -->
+            <span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE713;</span>
+            <span>Settings</span>
+          </li>          
+          <li id="start-menu-documents" style="display: flex; align-items: center;">
+            <span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE160;</span>
+            <span>Documents</span>
+          </li>
+          <li id="start-menu-photos" style="display: flex; align-items: center;">
+            <span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xEB9F;</span>
+            <span>Photos</span>
+            </li>
+          <li id="start-menu-store" style="display: flex; align-items: center;">
+            <span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE719;</span>
+            <span>Windows Store</span>
+          </li>
+          <li id="start-menu-power" style="display: flex; align-items: center;">
+            <span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE7E8;</span>
+            <span>Power</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Example Window -->
+      <div id="window-example" class="window">
+        <div class="window-header">
+          <img src="./images/Windowslogo.svg" alt="Icon" class="window-icon" draggable="false"/>
+          <span class="window-title">Info</span>
+          <span class="window-controls">
+            <button id="minimize-button" title="Minimize">&#x2013;</button>
+            <button id="maximize-button" title="Maximize">&#x25A1;</button>
+            <button id="close-button" class="mdl2-icon close-button" title="Close">&#xE711;</button>
+          </span>
+        </div>
+        <div class="window-body">
+          <p>
+            Welcome to the Windows 10 Simulation. Created with HTML and CSS by SDW4938. Enjoy!
+          </p>
+        </div>
+      </div>
+      <!-- Winver Simulation Window with Dragging Enabled -->
+<div id="winver-window" class="window" style="width: 400px; height: auto; position: fixed; top: 20%; left: 50%; transform: translateX(-50%);">
+  <!-- Header (styled like Winver, but with dragging enabled) -->
+  <div class="window-header" style="background: #0078d7; cursor: move;">
+    <span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE946;</span>
+    <span class="window-title" style="font-size: 16px; color: white;">About Windows</span>
+    <!-- We'll only show a close button -->
+    <span class="window-controls">
+      <button id="winver-close" style="background: transparent; border: none; font-size: 16px; color: white; cursor: pointer;">×</button>
+    </span>
+  </div>
+  <!-- Body -->
+  <div class="window-body" style="padding: 20px; text-align: center;">
+    <!-- Windows Logo -->
+    <img src="./images/Windows_10_Logo.svg" alt="Windows Logo" style="width: 256px; margin-bottom: 20px;" draggable="false">
+    <!-- Version Information -->
+    <h2 style="margin: 0; font-size: 18px; font-weight: normal;">Microsoft® Windows</h2>
+    <p style="margin: 5px 0; font-size: 14px;">Version 2004</p>
+    <p style="margin: 5px 0; font-size: 14px;">(OS Build 19041.vb_release_svc_prod3.200727-1844)</p>
+    <p style="margin-top: 20px; font-size: 12px; color: #555;">
+      © Microsoft Corporation. All rights reserved.
+    </p>
+    <!-- OK Button -->
+    <button id="winver-ok" style="margin-top: 20px; padding: 5px 15px; background: #0078d7; color: white; border: none; border-radius: 3px; cursor: pointer;">
+      OK
+    </button>
+  </div>
+</div>
+<script>
+  (function () {
+  const winverWindow = document.getElementById("winver-window");
+  const header = winverWindow.querySelector(".window-header");
+  let isDragging = false, offsetX = 0, offsetY = 0;
+  
+  // Enable dragging for the Winver window
+  header.addEventListener("mousedown", function (e) {
+    isDragging = true;
+    offsetX = e.clientX - winverWindow.offsetLeft;
+    offsetY = e.clientY - winverWindow.offsetTop;
+    // Remove transition for immediate dragging response
+    winverWindow.style.transition = "none";
+  });
+  
+  document.addEventListener("mousemove", function (e) {
+    if (isDragging) {
+      winverWindow.style.left = (e.clientX - offsetX) + "px";
+      winverWindow.style.top = (e.clientY - offsetY) + "px";
+    }
+  });
+  
+  document.addEventListener("mouseup", function () {
+    isDragging = false;
+    // Optionally restore transition
+    winverWindow.style.transition = "all 0.2s";
+  });
+
+  // Close the window when either the close or OK button is clicked.
+  const winverClose = document.getElementById("winver-close");
+  const winverOk = document.getElementById("winver-ok");
+  [winverClose, winverOk].forEach(button => {
+    button.addEventListener("click", function () {
+      winverWindow.style.display = "none";
+    });
+  });
+})();
+
+</script>
+
+      <!-- Notepad Window -->
+      <div id="notepad-window" class="window" style="display: none;">
+        <div class="window-header">
+          <!-- <img src="./images/notepad.jpeg" alt="Notepad Icon" class="window-icon" /> -->
+          <span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE70B;</span>
+          <span class="window-title">Notepad</span>
+          <span class="window-controls">
+            <button id="notepad-minimize">–</button>
+            <button id="notepad-maximize">□</button>
+            <button id="notepad-close">×</button>
+          </span>
+        </div>
+        <div class="window-body" style="position: relative; padding: 10px;">
+          <textarea id="notepad-textarea" style="width: 100%; height: calc(100% - 50px); resize: none; font-family: 'Segoe UI', sans-serif; font-size: 14px;"></textarea>
+          <button id="notepad-save" style="position: absolute; bottom: 10px; right: 10px;">Save</button>
+        </div>
+      </div>
+
+
+      <!-- Settings App Window -->
+      <div id="settings-window" class="window" style="display: none;">
+        <div class="window-header">
+          <!-- <img src="./images/settings.png" alt="Icon" class="window-icon" /> -->
+          <span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE713;</span>
+          <span class="window-title">Windows Settings</span>
+          <span class="window-controls">
+            <button id="settings-minimize">–</button>
+            <button id="settings-maximize">□</button>
+            <button id="settings-close">×</button>
+          </span>
+        </div>
+        <div class="window-body settings-app-body">
+          <div class="settings-sidebar">
+            <ul>
+              <li class="settings-option" data-section="system"><span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE770;</span>System</li>
+              <li class="settings-option" data-section="devices"><span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE772;</span>Devices</li>
+              <li class="settings-option" data-section="network"><span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE774;</span>Network & Internet</li>
+              <li class="settings-option" data-section="personalization"><span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE771;</span>Personalization</li>
+              <li class="settings-option" data-section="apps"><span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE71D;</span>Apps</li>
+              <li class="settings-option" data-section="accounts"><span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE77B;</span>Accounts</li>
+              <li class="settings-option" data-section="privacy"><span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE72E;</span>Privacy</li>
+              <li class="settings-option" data-section="security"><span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xEA18;</span>Windows Security</li>
+              <li class="settings-option" data-section="update"><span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE777;</span>Windows Update</li>
+            </ul>
+          </div>
+          <div class="settings-content">
+            <div id="settings-section-system" class="settings-section">
+              <h4>System Settings</h4>
+              <p>Adjust system performance, display, notifications, and power options.</p>
+            </div>
+            <div id="settings-section-devices" class="settings-section" style="display: none;">
+                <h4>Devices</h4>
+                <p>Provides a centralized area to manage and configure various connected devices and input methods, including printers, scanners, and other peripherals.</p>
+            </div>
+            <div id="settings-section-network" class="settings-section" style="display: none;">
+                <h4>Network & Internet</h4>
+                <p>Provide a centralized location to manage all aspects of your device's network connections and Internet access.</p>
+                <br>
+                <span>Network Status: Connected to Internet</span>
+                <br>
+                <span>Ethernet Status: Not Connected</span>
+                <br>
+                <button>Connect Using Ethernet</button>
+                <br>
+                <div>
+                  <span>Having Network Issues?</span>
+                  <p>The Windows Network Troubleshooter applies advanced troubleshooting steps to locate and solve a plethera of common network issues</p>
+                  <br>
+                  <button>Open Network Troubleshooter</button>
+                </div>
+            </div>
+            <div id="settings-section-personalization" class="settings-section" style="display: none;">
+              <h4>Personalization</h4>
+              <p>Customize your background, lock screen, and colors.</p>
+            </div>
+            <div id="settings-section-apps" class="settings-section" style="display: none;">
+              <h4>Apps Settings</h4>
+              <p>Manage installed apps and default programs.</p>
+            </div>
+            <div id="settings-section-accounts" class="settings-section" style="display: none;">
+                <h4>Accounts</h4>
+                <p>Allow you to manage user accounts, including creating new accounts, changing account types (like local or Microsoft), and managing sign-in options.</p>
+            </div>
+            <div id="settings-section-privacy" class="settings-section" style="display: none;">
+                <h4>Privacy</h4>
+                <p>Provides users with control over their data sharing and privacy choices when using Windows and Microsoft products.</p>
+            </div>
+            <div id="settings-section-security" class="settings-section" style="display: none;">
+                <h4>Windows Security</h4>
+                <p>Allow users to manage and configure various security aspects of their Windows operating system, including virus and threat protection, firewall and network protection, account protection, and app & browser control.</p>
+                <button id="settings-section-security-open-windows-security-button" type="button">Open Windows Security</button>
+            </div>
+            <div id="settings-section-update" class="settings-section" style="display: none;">
+                <h4>Windows Update</h4>
+                <p>These settings control how Windows Update interacts with Microsoft to receive, download, and install updates.</p>
+                <button id="settings-section-update-check-for-updates-button" type="button">Check for Updates</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- File Explorer Window -->
+      <div id="explorer-window" class="window" style="display: none;">
+        <div class="window-header">
+          <!-- <img src="./images/explorer.png" alt="Icon" class="window-icon" /> -->
+          <span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xEC50;</span>
+          <span class="window-title">File Explorer</span>
+          <span class="window-controls">
+            <button id="explorer-minimize">–</button>
+            <button id="explorer-maximize">□</button>
+            <button id="explorer-close">×</button>
+          </span>
+        </div>
+        <div class="window-body explorer-body">
+          <div class="explorer-sidebar">
+            <ul id="explorer-folders">
+              <!-- Folder list will be populated here -->
+            </ul>
+          </div>
+          <div class="explorer-content">
+            <ul id="explorer-files">
+              <!-- Files list will be populated here -->
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Microsoft Edge App Window -->
+      <div id="edge-window" class="window" style="display: none;">
+        <div class="window-header">
+          <!-- <img src="./images/browser.png" alt="App Icon" class="window-icon" /> -->
+          <span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE774;</span>
+          <span class="window-title">Microsoft Edge</span>
+          <span class="window-controls">
+            <button id="edge-minimize">–</button>
+            <button id="edge-maximize">□</button>
+            <button id="edge-close">×</button>
+          </span>
+        </div>
+        <div class="window-body">
+          <div class="edge-nav">
+            <button id="edge-back" title="Back">←</button>
+            <button id="edge-forward" title="Forward">→</button>
+            <button id="edge-reload" title="Reload">⟳</button>
+            <input type="text" id="edge-address" placeholder="Enter URL..." />
+            <button id="edge-go">Go</button>
+          </div>
+          <div class="edge-content">
+            <iframe
+              id="edge-iframe"
+              style="width:100%; height:100%; border:none;"
+              src="https://example.com"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Microsoft Store Window -->
+      <div id="store-window" class="window" style="display: none;">
+        <div class="window-header">
+          <!-- <img src="./images/store.png" alt="Icon" class="window-icon" /> -->
+          <span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE719;</span>
+          <span class="window-title">Microsoft Store</span>
+          <span class="window-controls">
+            <button id="store-minimize">–</button>
+            <button id="store-maximize">□</button>
+            <button id="store-close">×</button>
+          </span>
+        </div>
+        <div class="window-body store-body">
+          <div class="store-search">
+            <input
+              type="text"
+              id="store-search-input"
+              placeholder="Search apps and games..."
+            />
+          </div>
+          <div class="store-grid">
+            <!-- Store app tiles will be generated dynamically -->
+          </div>
+        </div>
+      </div>
+<!-- Task Manager Window (Simulated) -->
+<div id="taskmanager-window" class="window" style="display: none;">
+  <div class="window-header">
+    <span class="window-title">Task Manager</span>
+    <span class="window-controls">
+      <button id="taskmanager-minimize">–</button>
+      <button id="taskmanager-maximize">□</button>
+      <button id="taskmanager-close">×</button>
+    </span>
+  </div>
+  <div class="window-body">
+    <p>Task List</p>
+    <ul id="process-list">
+      <li>Microsoft Edge</li>
+      <li>Notepad</li>
+      <li>Windows Explorer</li>
+    </ul>
+  </div>
+</div>
+
+      <!-- Action Center -->
+      <div id="action-center">
+        <div id="action-center-header">
+          <h4>ACTION CENTER</h4>
+          <button id="action-center-close" class="mdl2-icon" style="cursor: pointer;">&#xE711;</button>
+        </div>
+        <div id="action-center-body">
+          <div class="notification">
+            <p>Email from John</p>
+            <small>Just now</small>
+          </div>
+          <div class="notification">
+            <p>System Update Available</p>
+            <small>5 min ago</small>
+          </div>
+          <div class="notification">
+            <p>Meeting at 3 PM</p>
+            <small>10 min ago</small>
+          </div>
+        </div>
+        <div id="action-center-footer">
+          <div class="quick-toggle" data-toggle="wifi"><span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE701;</span>Wi‑Fi</div>
+          <div class="quick-toggle" data-toggle="bluetooth"><span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE702;</span>Bluetooth</div>
+          <div class="quick-toggle" data-toggle="airplane"><span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE709;</span>Air</div>
+        </div>
+      </div>
+
+      <!-- Taskbar -->
+      <div id="taskbar">
+        <div id="start-button" title="Start">
+            <img
+              src=".\images\Windowslogo.svg"
+              alt="Start Icon"
+              class="start-icon"
+              draggable="false"
+            />
+          </div>
+<!-- Custom Context Menu for the Start Button -->
+<ul id="start-context-menu">
+  <li><a href="#">Apps and Features</a></li>
+  <li><a href="#">Mobility Center</a></li>
+  <li><a href="#">Power Options</a></li>
+  <li class="separator"></li>
+  <li><a href="#">Event Viewer</a></li>
+  <li><a href="#">System</a></li>
+  <li><a href="#">Device Manager</a></li>
+  <li><a href="#">Network Connections</a></li>
+  <li><a href="#">Disk Management</a></li>
+  <li><a href="#">Computer Management</a></li>
+  <li class="separator"></li>
+  <li><a href="#">Windows PowerShell</a></li>
+  <li><a href="#">Windows PowerShell (Admin)</a></li>
+  <li><a href="#">Task Manager</a></li>
+  <li class="separator"></li>
+  <li><a href="#">Settings</a></li>
+  <li><a href="#">File Explorer</a></li>
+  <li><a href="#">Search</a></li>
+  <li><a href="#">Run</a></li>
+  <li class="separator"></li>
+  <li><a href="#">Shut down or sign out</a></li>
+  <li><a href="#">Desktop</a></li>
+</ul>
+
+      <div id="taskbar-icons">
+            <span id="explorer-app" style="display: inline-flex; align-items: center; cursor: pointer;" title="File Explorer">
+              <img 
+              src="./images/explorer.png" 
+              alt="File Explorer Icon" 
+              class="taskbar-icon" 
+              style="width: 24px; height: 24px; margin-right: 5px;"
+              draggable="false"
+            />
+          </span>
+            <span id="edge-app" style="display: inline-flex; align-items: center; cursor: pointer;"title="Microsoft Edge Legacy">
+              <img 
+              src="./images/edge.svg" 
+              alt="Edge Icon" 
+              class="taskbar-icon" 
+              style="width: 24px; height: 24px; margin-right: 5px;"
+              draggable="false"
+            />
+          </span>
+            <span id="store-app" style="display: inline-flex; align-items: center; cursor: pointer;" title="Microsoft Store">
+              <img 
+              src="./images/store.svg" 
+              alt="Store Icon" 
+              class="taskbar-icon" 
+              style="width: 24px; height: 24px; margin-right: 5px;"
+              draggable="false"
+            />
+          </span>
+            <span id="notepad-app" style="display: inline-flex; align-items: center; cursor: pointer;" title="Notepad">
+              <img 
+                src="./images/notepad.jpeg" 
+                alt="Notepad Icon" 
+                class="taskbar-icon" 
+                style="width: 24px; height: 24px; margin-right: 5px;"
+                draggable="false"
+              />
+            </span>
+        </div>
+        <!-- Right-hand container for Wi‑Fi, Sound, Battery, Clock and Action Center Toggle -->
+        <div id="taskbar-right">
+          <!-- New hidden icons button -->
+            <span id="hidden-icons-button" class="mdl2-icon" style="margin-right: 10px; cursor: pointer;" title="Show hidden icons">&#xE70E;</span>
+          <span id="wifi-button" class="mdl2-icon" style="margin-right: 10px; cursor: pointer;" title="Internet">&#xE701;</span>
+          <span id="sound-button" class="mdl2-icon" style="cursor: pointer;" title="Sound">&#xE994;</span>
+          <span id="battery-button" class="mdl2-icon" style="margin-right: 10px; cursor: pointer;" title="Battery">&#xE862;</span>
+          <div id="clock-container" style="margin-right: 10px; cursor: pointer;" title="Clock">
+            <div id="clock-time"></div>
+            <div id="clock-date"></div>
+          </div>          
+          <span id="action-center-toggle" class="mdl2-icon" style="cursor: pointer;" title="No new notifications">&#xE91C;</span>
+        </div>
+      </div>
+      
+      <div id="clock-flyout" style="
+      display: none;
+      position: absolute;
+      background: rgba(50, 50, 50, 0.95);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      font-size: 14px;
+      z-index: 1100;
+      ">
+      <div id="calendar-header" style="text-align: center; margin-bottom: 10px; font-weight: bold;"></div>
+      <div id="calendar-body"></div>
+    </div>
+
+    <body>
+      <div id="watermark" style="
+      position: fixed !important;
+      bottom: 35px !important;
+      right: 0px !important;
+      color: white !important;
+      font-size: 12px;
+      z-index: 10 !important;
+      padding: 5px;">
+        <div>Windows 10 Enterprise Insider Preview</div>
+        <div>Evaluation Copy. Build 10.0.19041.423.vb_release_svc_prod3.200727-1844</div>
+      </div>
+    </body>
+    
+    
+        <!-- Battery Flyout -->
+        <div id="battery-flyout">Battery: 75%</div>
+
+        <!-- Sound Flyout -->
+        <div id="sound-flyout">
+          <label for="volume-slider">Volume:</label>
+          <br />
+          <input id="volume-slider" type="range" min="0" max="100" value="50" />
+          <br />
+          <button id="mute-button">Mute</button>
+        </div>
+
+        <!-- Wi‑Fi Flyout -->
+        <div id="wifi-flyout">Connected to Internet</div>
+        </div>
+
+        <div id="recycle-bin-icon" class="desktop-icon">
+            <img src=".\images\recyclebin.png" alt="Recycle Bin Icon" title="Contains the files and folders you have deleted."/>
+            <span>Recycle Bin</span>
+        </div>
+      <!-- Desktop Context Menu -->
+<div id="desktop-context-menu">
+  <ul>
+    <li id="cm-view">View</li>
+    <li id="cm-sortby">Sort by</li>
+    <li id="cm-refresh">Refresh</li>
+    <li id="cm-paste">Paste</li>
+    <li id="cm-paste-shortcut">Paste Shortcut</li>
+    <li id="cm-copy">Copy</li>
+    <li id="cm-new">New</li>
+    <li id="cm-display">Display</li>
+    <li id="cm-personalize">Personalize</li>
+  </ul>
+</div>
+
+
+    <!-- Modal: Store App Detail -->
+    <div id="store-detail-modal" class="modal">
+      <div class="modal-content">
+        <span id="store-detail-close" class="modal-close">&times;</span>
+        <img
+          id="store-detail-img"
+          src=""
+          alt=""
+          style="width:80px; height:80px; margin: 0 auto; display: block;"
+          draggable="false"
+        />
+        <h3 id="store-detail-title"></h3>
+        <p id="store-detail-description"></p>
+        <button id="store-detail-install">Install</button>
+      </div>
+    </div>
+      <!-- Taskbar Context Menu -->
+    <div id="taskbar-context-menu">
+        <ul style="list-style: none; margin: 0; padding: 0;">
+          <li id="tb-settings" style="padding: 5px 15px; cursor: pointer;">Taskbar Settings</li>
+          <li id="tb-taskmanager" style="padding: 5px 15px; cursor: pointer;">Task Manager</li>
+      </ul>
+    </div>
+<!-- Hidden Icons Flyout (place this at the bottom of your body so it isn’t clipped) -->
+<div id="hidden-icons-flyout">
+  <!-- Customize the content: add any hidden icons you want to show -->
+  <div style="display: flex; gap: 10px;">
+    <span class="mdl2-icon" title="Hidden Icon 1">&#xE7C1;</span>
+    <span class="mdl2-icon" title="Hidden Icon 2">&#xE8AE;</span>
+    <!-- Add more icons as needed -->
+  </div>
+</div>
+    <script>
+      window.addEventListener("load", function () {
+  // Wait for the loading screen to fade out and be removed
+  setTimeout(function () {
+    const startupScreen = document.getElementById("startup-screen");
+    if (startupScreen) {
+      startupScreen.classList.add("hidden");
+      setTimeout(function () {
+        startupScreen.parentNode.removeChild(startupScreen);
+        // Now that the startup screen is gone, attach context menu events:
+        initContextMenu();
+      }, 500);
+    } else {
+      initContextMenu();
+    }
+  }, 2000);
+});
+
+function initContextMenu() {
+  const desktop = document.getElementById("desktop");
+  const contextMenu = document.getElementById("desktop-context-menu");
+
+  // Attach event handler for right-click on the desktop.
+  desktop.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+    contextMenu.style.display = "block";
+    contextMenu.style.top = e.pageY + "px";
+    contextMenu.style.left = e.pageX + "px";
+  });
+
+  // Hide the context menu when clicking anywhere else.
+  document.addEventListener("click", function (e) {
+    if (contextMenu.style.display === "block") {
+      contextMenu.style.display = "none";
+    }
+  });
+}
+
+      // Sample list of networks with their connection state.
+let wifiNetworks = [
+  { ssid: "Home Wi‑Fi", connected: true },
+  { ssid: "Office Wi‑Fi", connected: false },
+  { ssid: "Coffee Shop", connected: false }
+];
+
+      /********************** Basic Taskbar & Start Menu **********************/
+const startButton = document.getElementById("start-button");
+const startMenu = document.getElementById("start-menu");
+startButton.addEventListener("click", function (e) {
+  e.stopPropagation();
+  //startMenu.style.display = startMenu.style.display === "block" ? "none" : "block";
+  startMenu.classList.toggle("open");
+});
+//document.addEventListener("click", function (e) {
+  //if (!startMenu.contains(e.target)) {
+  //  startMenu.style.display = "none";
+  //
+  document.addEventListener("click", function (e) {
+// Only remove the "open" class if the clicked target is
+// not within the start menu AND is not the start button.
+if (!startMenu.contains(e.target) && e.target !== startButton) {
+  startMenu.classList.remove("open");
+  }
+});
+
+const startContextMenu = document.getElementById("start-context-menu");
+
+// Show custom context menu on right-click of the start button
+startButton.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const menu = startContextMenu;
+
+  // Temporarily display the menu so we can measure it:
+  menu.style.display = "block";
+
+  // Get the menu dimensions
+  const menuRect = menu.getBoundingClientRect();
+
+  // Set initial positions based on the click coordinates
+  let posX = e.pageX;
+  let posY = e.pageY;
+
+  // Adjust horizontal position if the menu goes off the right side
+  if (posX + menuRect.width > window.innerWidth) {
+    posX = window.innerWidth - menuRect.width - 10; // subtract a small margin
+  }
+
+  // Adjust vertical position if the menu goes off the bottom side
+  if (posY + menuRect.height > window.innerHeight) {
+    posY = window.innerHeight - menuRect.height - 10; // subtract a small margin
+  }
+
+  // Set the adjusted position
+  menu.style.left = posX + "px";
+  menu.style.top = posY + "px";
+});
+
+
+
+// Hide the context menu when clicking anywhere else
+document.addEventListener("click", (e) => {
+  if (
+    startContextMenu.style.display === "block" &&
+    !startContextMenu.contains(e.target) &&
+    e.target !== startButton
+  ) {
+    startContextMenu.style.display = "none";
+  }
+});
+
+
+/********************** Example Window Controls & Dragging **********************/
+const windowElement = document.getElementById("window-example");
+const minimizeButton = document.getElementById("minimize-button");
+const maximizeButton = document.getElementById("maximize-button");
+const closeButton = document.getElementById("close-button");
+closeButton.addEventListener("click", function () {
+  windowElement.style.display = "none";
+});
+minimizeButton.addEventListener("click", function () {
+  const windowBody = windowElement.querySelector(".window-body");
+  windowBody.style.display = windowBody.style.display === "none" ? "block" : "none";
+});
+maximizeButton.addEventListener("click", function () {
+  if (windowElement.classList.contains("maximized")) {
+    windowElement.style.left = windowElement.dataset.originalLeft || "100px";
+    windowElement.style.top = windowElement.dataset.originalTop || "100px";
+    windowElement.style.width = windowElement.dataset.originalWidth || "400px";
+    windowElement.style.height = windowElement.dataset.originalHeight || "";
+    windowElement.classList.remove("maximized");
+  } else {
+    windowElement.dataset.originalLeft = windowElement.style.left;
+    windowElement.dataset.originalTop = windowElement.style.top;
+    windowElement.dataset.originalWidth = windowElement.style.width;
+    windowElement.dataset.originalHeight = windowElement.style.height;
+    windowElement.style.left = "0";
+    windowElement.style.top = "0";
+    windowElement.style.width = "100%";
+    windowElement.style.height = "100%";
+    windowElement.classList.add("maximized");
+  }
+});
+(function () {
+  const header = windowElement.querySelector(".window-header");
+  let isDragging = false, offsetX, offsetY;
+  header.addEventListener("mousedown", function (e) {
+    isDragging = true;
+    offsetX = e.clientX - windowElement.offsetLeft;
+    offsetY = e.clientY - windowElement.offsetTop;
+    windowElement.style.transition = "none";
+  });
+  document.addEventListener("mousemove", function (e) {
+    if (isDragging) {
+      windowElement.style.left = e.clientX - offsetX + "px";
+      windowElement.style.top = e.clientY - offsetY + "px";
+    }
+  });
+  document.addEventListener("mouseup", function () {
+    isDragging = false;
+    windowElement.style.transition = "all 0.2s";
+  });
+})();
+
+/********************** Settings App Controls & Dragging **********************/
+const settingsMenuItem = document.getElementById("start-menu-settings");
+const settingsWindow = document.getElementById("settings-window");
+settingsMenuItem.addEventListener("click", function () {
+  settingsWindow.style.display = "block";
+  // startMenu.style.display = "none";
+
+  startMenu.classList.remove("open");
+
+});
+const settingsClose = document.getElementById("settings-close");
+const settingsMinimize = document.getElementById("settings-minimize");
+const settingsMaximize = document.getElementById("settings-maximize");
+settingsClose.addEventListener("click", function () {
+  settingsWindow.style.display = "none";
+});
+settingsMinimize.addEventListener("click", function () {
+  const bodyContent = settingsWindow.querySelector(".window-body");
+  bodyContent.style.display = bodyContent.style.display === "none" ? "flex" : "none";
+});
+settingsMaximize.addEventListener("click", function () {
+  if (settingsWindow.classList.contains("maximized")) {
+    settingsWindow.style.left = settingsWindow.dataset.originalLeft || "100px";
+    settingsWindow.style.top = settingsWindow.dataset.originalTop || "100px";
+    settingsWindow.style.width = settingsWindow.dataset.originalWidth || "600px";
+    settingsWindow.style.height = settingsWindow.dataset.originalHeight || "400px";
+    settingsWindow.classList.remove("maximized");
+  } else {
+    settingsWindow.dataset.originalLeft = settingsWindow.style.left;
+    settingsWindow.dataset.originalTop = settingsWindow.style.top;
+    settingsWindow.dataset.originalWidth = settingsWindow.style.width;
+    settingsWindow.dataset.originalHeight = settingsWindow.style.height;
+    settingsWindow.style.left = "0";
+    settingsWindow.style.top = "0";
+    settingsWindow.style.width = "100%";
+    settingsWindow.style.height = "100%";
+    settingsWindow.classList.add("maximized");
+  }
+});
+(function () {
+  const header = settingsWindow.querySelector(".window-header");
+  let isDragging = false, offsetX, offsetY;
+  header.addEventListener("mousedown", function (e) {
+    isDragging = true;
+    offsetX = e.clientX - settingsWindow.offsetLeft;
+    offsetY = e.clientY - settingsWindow.offsetTop;
+    settingsWindow.style.transition = "none";
+  });
+  document.addEventListener("mousemove", function (e) {
+    if (isDragging) {
+      settingsWindow.style.left = e.clientX - offsetX + "px";
+      settingsWindow.style.top = e.clientY - offsetY + "px";
+    }
+  });
+  document.addEventListener("mouseup", function () {
+    isDragging = false;
+    settingsWindow.style.transition = "all 0.2s";
+  });
+})();
+// Sidebar switching for Settings app.
+const settingsOptions = document.querySelectorAll(".settings-option");
+settingsOptions.forEach((option) => {
+  option.addEventListener("click", function () {
+    settingsOptions.forEach((opt) => opt.classList.remove("active"));
+    option.classList.add("active");
+    document.querySelectorAll(".settings-section").forEach((section) => {
+      section.style.display = "none";
+    });
+    const sectionId = "settings-section-" + option.getAttribute("data-section");
+    document.getElementById(sectionId).style.display = "block";
+  });
+});
+
+/********************** File Explorer Functionality **********************/
+const fileSystem = {
+  Documents: ["Resume.docx", "Report.pdf", "Notes.txt"],
+  Pictures: ["Vacation.jpg", "Family.png", "Friend.jpeg"],
+  Music: ["Song1.mp3", "Song2.mp3"],
+  Videos: ["Movie.mp4", "Clip.avi"],
+  "Recycle Bin": ["Report.html"] // Added Recycle Bin folder (initially empty)
+};
+/*function populateExplorerFolders() {
+  const folderList = document.getElementById("explorer-folders");
+  folderList.innerHTML = "";
+  for (let folder in fileSystem) {
+    const li = document.createElement("li");
+    li.innerText = folder;
+    li.dataset.folder = folder;
+    li.addEventListener("click", function () {
+      document.querySelectorAll("#explorer-folders li").forEach((item) => {
+        item.classList.remove("active");
+      });
+      li.classList.add("active");
+      populateExplorerFiles(folder);
+    });
+    folderList.appendChild(li);
+  }
+}*/
+
+function populateExplorerFolders() {
+  const folderList = document.getElementById("explorer-folders");
+  folderList.innerHTML = "";
+  for (let folder in fileSystem) {
+    const li = document.createElement("li");
+    
+    // Create a span for the icon
+    const iconSpan = document.createElement("span");
+    iconSpan.classList.add("mdl2-icon");
+    
+    // Choose the right glyph based on the folder name
+    let iconCode = "";
+    if (folder === "Documents") {
+      iconCode = "&#xE8B7;";   // Documents folder icon
+    } else if (folder === "Pictures") {
+      iconCode = "&#xEB9F;";   // Pictures icon
+    } else if (folder === "Music") {
+      iconCode = "&#xEC4F;";   // Music icon
+    } else if (folder === "Videos") {
+      iconCode = "&#xE714;";   // Videos icon
+    } else if (folder === "Recycle Bin") {
+      iconCode = "&#xE74D;";   // Recycle Bin icon (optional)
+    } else {
+      iconCode = "&#xE8B7;";   // Default folder icon
+    }
+    
+    // Insert the icon (setting innerHTML so the entity renders)
+    iconSpan.innerHTML = iconCode;
+    
+    // Append the icon and then the text node to the li element
+    li.appendChild(iconSpan);
+    li.appendChild(document.createTextNode(folder));
+    
+    li.dataset.folder = folder;
+    li.addEventListener("click", function () {
+      // Highlight the selected folder and load its files
+      document.querySelectorAll("#explorer-folders li").forEach((item) => {
+        item.classList.remove("active");
+      });
+      li.classList.add("active");
+      populateExplorerFiles(folder);
+    });
+    
+    folderList.appendChild(li);
+  }
+}
+
+function populateExplorerFiles(folder) {
+  const fileList = document.getElementById("explorer-files");
+  fileList.innerHTML = "";
+  if (fileSystem[folder]) {
+    fileSystem[folder].forEach((file) => {
+      const li = document.createElement("li");
+      li.innerText = file;
+      fileList.appendChild(li);
+    });
+  }
+}
+const explorerAppIcon = document.getElementById("explorer-app");
+const explorerWindow = document.getElementById("explorer-window");
+explorerAppIcon.addEventListener("click", function () {
+  explorerWindow.style.display = "block";
+  populateExplorerFolders();
+  const firstFolder = document.querySelector("#explorer-folders li");
+  if (firstFolder) {
+    firstFolder.click();
+  }
+});
+const explorerClose = document.getElementById("explorer-close");
+const explorerMinimize = document.getElementById("explorer-minimize");
+const explorerMaximize = document.getElementById("explorer-maximize");
+explorerClose.addEventListener("click", function () {
+  explorerWindow.style.display = "none";
+});
+explorerMinimize.addEventListener("click", function () {
+  const bodyContent = explorerWindow.querySelector(".window-body");
+  bodyContent.style.display = bodyContent.style.display === "none" ? "flex" : "none";
+});
+explorerMaximize.addEventListener("click", function () {
+  if (explorerWindow.classList.contains("maximized")) {
+    explorerWindow.style.left = explorerWindow.dataset.originalLeft || "100px";
+    explorerWindow.style.top = explorerWindow.dataset.originalTop || "100px";
+    explorerWindow.style.width = explorerWindow.dataset.originalWidth || "600px";
+    explorerWindow.style.height = explorerWindow.dataset.originalHeight || "400px";
+    explorerWindow.classList.remove("maximized");
+  } else {
+    explorerWindow.dataset.originalLeft = explorerWindow.style.left;
+    explorerWindow.dataset.originalTop = explorerWindow.style.top;
+    explorerWindow.dataset.originalWidth = explorerWindow.style.width;
+    explorerWindow.dataset.originalHeight = explorerWindow.style.height;
+    explorerWindow.style.left = "0";
+    explorerWindow.style.top = "0";
+    explorerWindow.style.width = "100%";
+    explorerWindow.style.height = "100%";
+    explorerWindow.classList.add("maximized");
+  }
+});
+(function () {
+  const header = document.querySelector("#explorer-window .window-header");
+  let isDragging = false, offsetX, offsetY;
+  header.addEventListener("mousedown", function (e) {
+    isDragging = true;
+    offsetX = e.clientX - explorerWindow.offsetLeft;
+    offsetY = e.clientY - explorerWindow.offsetTop;
+    explorerWindow.style.transition = "none";
+  });
+  document.addEventListener("mousemove", function (e) {
+    if (isDragging) {
+      explorerWindow.style.left = e.clientX - offsetX + "px";
+      explorerWindow.style.top = e.clientY - offsetY + "px";
+    }
+  });
+  document.addEventListener("mouseup", function () {
+    isDragging = false;
+    explorerWindow.style.transition = "all 0.2s";
+  });
+})();
+
+/********************** New: Documents & Photos Button Functionality **********************/
+// Add event listeners to the Documents and Photos buttons in the Start Menu.
+const startMenuDocuments = document.getElementById("start-menu-documents");
+const startMenuPhotos = document.getElementById("start-menu-photos");
+startMenuDocuments.addEventListener("click", function () {
+    explorerWindow.style.display = "block";
+    populateExplorerFolders();
+    // Wait briefly to allow folder listing before simulating a click on "Documents"
+    setTimeout(() => {
+        const docFolderElem = Array.from(document.querySelectorAll("#explorer-folders li"))
+                                .find(li => li.innerText === "Documents");
+        if (docFolderElem) {
+            docFolderElem.click();
+        }
+    }, 10);
+    // startMenu.style.display = "none";
+    startMenu.classList.remove("open");
+
+});
+startMenuPhotos.addEventListener("click", function () {
+    explorerWindow.style.display = "block";
+    populateExplorerFolders();
+    // "Photos" button will open the "Pictures" folder as defined in the file system.
+    setTimeout(() => {
+        const photoFolderElem = Array.from(document.querySelectorAll("#explorer-folders li"))
+                                  .find(li => li.innerText === "Pictures");
+        if (photoFolderElem) {
+            photoFolderElem.click();
+        }
+    }, 10);
+    //startMenu.style.display = "none";
+    startMenu.classList.remove("open");
+
+});
+
+/********************** Microsoft Edge App Functionality **********************/
+const edgeAppIcon = document.getElementById("edge-app");
+const edgeWindow = document.getElementById("edge-window");
+edgeAppIcon.addEventListener("click", function () {
+  edgeWindow.style.display = "block";
+});
+const edgeClose = document.getElementById("edge-close");
+const edgeMinimize = document.getElementById("edge-minimize");
+const edgeMaximize = document.getElementById("edge-maximize");
+edgeClose.addEventListener("click", function () {
+  edgeWindow.style.display = "none";
+});
+edgeMinimize.addEventListener("click", function () {
+  const bodyContent = edgeWindow.querySelector(".window-body");
+  bodyContent.style.display = bodyContent.style.display === "none" ? "block" : "none";
+});
+edgeMaximize.addEventListener("click", function () {
+  if (edgeWindow.classList.contains("maximized")) {
+    edgeWindow.style.left = edgeWindow.dataset.originalLeft || "100px";
+    edgeWindow.style.top = edgeWindow.dataset.originalTop || "100px";
+    edgeWindow.style.width = edgeWindow.dataset.originalWidth || "600px";
+    edgeWindow.style.height = edgeWindow.dataset.originalHeight || "400px";
+    edgeWindow.classList.remove("maximized");
+  } else {
+    edgeWindow.dataset.originalLeft = edgeWindow.style.left;
+    edgeWindow.dataset.originalTop = edgeWindow.style.top;
+    edgeWindow.dataset.originalWidth = edgeWindow.style.width;
+    edgeWindow.dataset.originalHeight = edgeWindow.style.height;
+    edgeWindow.style.left = "0";
+    edgeWindow.style.top = "0";
+    edgeWindow.style.width = "100%";
+    edgeWindow.style.height = "100%";
+    edgeWindow.classList.add("maximized");
+  }
+});
+(function () {
+  const header = edgeWindow.querySelector(".window-header");
+  let isDragging = false, offsetX, offsetY;
+  header.addEventListener("mousedown", function (e) {
+    isDragging = true;
+    offsetX = e.clientX - edgeWindow.offsetLeft;
+    offsetY = e.clientY - edgeWindow.offsetTop;
+    edgeWindow.style.transition = "none";
+  });
+  document.addEventListener("mousemove", function (e) {
+    if (isDragging) {
+      edgeWindow.style.left = e.clientX - offsetX + "px";
+      edgeWindow.style.top = e.clientY - offsetY + "px";
+    }
+  });
+  document.addEventListener("mouseup", function () {
+    isDragging = false;
+    edgeWindow.style.transition = "all 0.2s";
+  });
+})();
+// Edge Navigation Functionality with Basic History
+let edgeHistory = [];
+let edgeHistoryIndex = -1;
+function loadEdgeURL(url, updateHistory = true) {
+  const iframe = document.getElementById("edge-iframe");
+  let newUrl = url.trim();
+  if (!newUrl.startsWith("http://") && !newUrl.startsWith("https://")) {
+    newUrl = "https://" + newUrl;
+  }
+  iframe.src = newUrl;
+  document.getElementById("edge-address").value = newUrl;
+  if (updateHistory) {
+    if (edgeHistoryIndex < edgeHistory.length - 1) {
+      edgeHistory = edgeHistory.slice(0, edgeHistoryIndex + 1);
+    }
+    edgeHistory.push(newUrl);
+    edgeHistoryIndex = edgeHistory.length - 1;
+  }
+}
+document.getElementById("edge-go").addEventListener("click", function () {
+  const url = document.getElementById("edge-address").value;
+  loadEdgeURL(url, true);
+});
+document.getElementById("edge-address").addEventListener("keypress", function (e) {
+  if (e.key === "Enter") {
+    const url = document.getElementById("edge-address").value;
+    loadEdgeURL(url, true);
+  }
+});
+document.getElementById("edge-reload").addEventListener("click", function () {
+  const iframe = document.getElementById("edge-iframe");
+  iframe.contentWindow.location.reload();
+});
+document.getElementById("edge-back").addEventListener("click", function () {
+  if (edgeHistoryIndex > 0) {
+    edgeHistoryIndex--;
+    loadEdgeURL(edgeHistory[edgeHistoryIndex], false);
+  }
+});
+document.getElementById("edge-forward").addEventListener("click", function () {
+  if (edgeHistoryIndex < edgeHistory.length - 1) {
+    edgeHistoryIndex++;
+    loadEdgeURL(edgeHistory[edgeHistoryIndex], false);
+  }
+});
+
+/********************** Microsoft Store Functionality **********************/
+let storeApps = [
+  { id: 1, title: "Microsoft Edge", description: "The fastest browser in existence.", image: "./images/edge.svg", installed: false, },
+  { id: 2, title: "Microsoft Office", description: "Productivity suite for your work.", image: "./images/office.png", installed: false },
+  { id: 3, title: "Microsoft Photos", description: "View, manage, and edit your photos.", image: "./images/logo.png", installed: false },
+  { id: 4, title: "Microsoft Groove Music", description: "Listen to your favorite tunes.", image: "./images/music.png", installed: false },
+  { id: 5, title: "Microsoft Xbox", description: "Play games, chat with friends, stream online.", image: "./images/xbox.jpg", installed: false }, 
+];
+const storeAppIcon = document.getElementById("store-app");
+const storeWindow = document.getElementById("store-window");
+storeAppIcon.addEventListener("click", function () {
+  storeWindow.style.display = "block";
+  renderStoreApps("");
+});
+document.getElementById("start-menu-store")?.addEventListener("click", function () {
+  storeWindow.style.display = "block";
+  //startMenu.style.display = "none";
+  startMenu.classList.remove("open");
+
+  renderStoreApps("");
+});
+const storeClose = document.getElementById("store-close");
+const storeMinimize = document.getElementById("store-minimize");
+const storeMaximize = document.getElementById("store-maximize");
+storeClose.addEventListener("click", function () {
+  storeWindow.style.display = "none";
+});
+storeMinimize.addEventListener("click", function () {
+  const bodyContent = storeWindow.querySelector(".window-body");
+  bodyContent.style.display = bodyContent.style.display === "none" ? "block" : "none";
+});
+storeMaximize.addEventListener("click", function () {
+  if (storeWindow.classList.contains("maximized")) {
+    storeWindow.style.left = storeWindow.dataset.originalLeft || "100px";
+    storeWindow.style.top = storeWindow.dataset.originalTop || "100px";
+    storeWindow.style.width = storeWindow.dataset.originalWidth || "600px";
+    storeWindow.style.height = storeWindow.dataset.originalHeight || "400px";
+    storeWindow.classList.remove("maximized");
+  } else {
+    storeWindow.dataset.originalLeft = storeWindow.style.left;
+    storeWindow.dataset.originalTop = storeWindow.style.top;
+    storeWindow.dataset.originalWidth = storeWindow.style.width;
+    storeWindow.dataset.originalHeight = storeWindow.style.height;
+    storeWindow.style.left = "0";
+    storeWindow.style.top = "0";
+    storeWindow.style.width = "100%";
+    storeWindow.style.height = "100%";
+    storeWindow.classList.add("maximized");
+  }
+});
+(function () {
+  const header = document.querySelector("#store-window .window-header");
+  let isDragging = false, offsetX, offsetY;
+  header.addEventListener("mousedown", function (e) {
+    isDragging = true;
+    offsetX = e.clientX - storeWindow.offsetLeft;
+    offsetY = e.clientY - storeWindow.offsetTop;
+    storeWindow.style.transition = "none";
+  });
+  document.addEventListener("mousemove", function (e) {
+    if (isDragging) {
+      storeWindow.style.left = e.clientX - offsetX + "px";
+      storeWindow.style.top = e.clientY - offsetY + "px";
+    }
+  });
+  document.addEventListener("mouseup", function () {
+    isDragging = false;
+    storeWindow.style.transition = "all 0.2s";
+  });
+})();
+function renderStoreApps(filterText) {
+  const grid = document.querySelector(".store-grid");
+  grid.innerHTML = "";
+  let filteredApps = storeApps.filter((app) =>
+    app.title.toLowerCase().includes(filterText.toLowerCase())
+  );
+  filteredApps.forEach((app) => {
+    const div = document.createElement("div");
+    div.classList.add("store-item");
+    div.dataset.appId = app.id;
+    div.innerHTML = `<img src="${app.image}" alt="${app.title}" /><div>${app.title}</div>`;
+    div.addEventListener("click", function () {
+      openStoreDetail(app.id);
+    });
+    grid.appendChild(div);
+  });
+}
+const storeSearchInput = document.getElementById("store-search-input");
+storeSearchInput.addEventListener("input", function () {
+  renderStoreApps(this.value.trim());
+});
+function openStoreDetail(appId) {
+  let app = storeApps.find((a) => a.id == appId);
+  if (!app) return;
+  document.getElementById("store-detail-img").src = app.image;
+  document.getElementById("store-detail-title").innerText = app.title;
+  document.getElementById("store-detail-description").innerText = app.description;
+  let installButton = document.getElementById("store-detail-install");
+  if (app.installed) {
+    installButton.innerText = "Installed";
+    installButton.disabled = true;
+  } else {
+    installButton.innerText = "Install";
+    installButton.disabled = false;
+    installButton.onclick = function () {
+      app.installed = true;
+      installButton.innerText = "Installed";
+      installButton.disabled = true;
+    };
+  }
+  document.getElementById("store-detail-modal").style.display = "flex";
+}
+document.getElementById("store-detail-close").addEventListener("click", function () {
+  document.getElementById("store-detail-modal").style.display = "none";
+});
+
+/********************** Action Center Functionality **********************/
+const actionCenterToggle = document.getElementById("action-center-toggle");
+const actionCenter = document.getElementById("action-center");
+const actionCenterClose = document.getElementById("action-center-close");
+actionCenterToggle.addEventListener("click", function () {
+  actionCenter.classList.toggle("open");
+});
+actionCenterClose.addEventListener("click", function () {
+  actionCenter.classList.remove("open");
+});
+document.querySelectorAll(".quick-toggle").forEach((toggle) =>
+  toggle.addEventListener("click", function () {
+    toggle.classList.toggle("active");
+  })
+);
+
+/********************** Clock Functionality **********************/
+const clockTime = document.getElementById("clock-time");
+const clockDate = document.getElementById("clock-date");
+
+function updateClock() {
+const now = new Date();
+
+// Create the time string (e.g., 09:08:15)
+const hours = now.getHours().toString().padStart(2, "0");
+const minutes = now.getMinutes().toString().padStart(2, "0");
+const seconds = now.getSeconds().toString().padStart(2, "0");
+clockTime.innerText = `${hours}:${minutes}:${seconds}`;
+
+// Create a formatted date string (for example: Fri, Apr 25, 2025)
+clockDate.innerText = now.toLocaleDateString("en-US", {
+weekday: "short",
+month: "short",
+day: "numeric",
+year: "numeric"
+});
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+/********************** Battery Flyout Functionality **********************/
+// Helper function to format seconds into a friendly string
+function formatTime(seconds) {
+  if (seconds === Infinity || seconds < 0) {
+    return "Not Available";
+  }
+  let mins = Math.floor(seconds / 60);
+  let secs = Math.floor(seconds % 60);
+  return `${mins}m ${secs}s`;
+}
+
+// Positioning function for any flyout, based on a reference element
+function positionFlyout(flyout, referenceElement, gap = 10) {
+  // Temporarily show flyout invisibly so its dimensions are measurable
+  flyout.style.visibility = "hidden";
+  flyout.style.display = "block";
+
+  // Get flyout dimensions and reference element's bounding rectangle
+  let flyoutWidth = flyout.offsetWidth;
+  let flyoutHeight = flyout.offsetHeight;
+  let rect = referenceElement.getBoundingClientRect();
+
+  // Initial placement: above the reference element
+  let top = rect.top - flyoutHeight - gap;
+  let left = rect.left;
+
+  // If it would go off the top, place it below the reference element instead
+  if (top < 0) {
+    top = rect.bottom + gap;
+  }
+
+  // If it extends off the right side of the viewport, adjust left position
+  if (left + flyoutWidth > window.innerWidth) {
+    left = window.innerWidth - flyoutWidth - gap;
+  }
+
+  // Prevent it from going off the left side
+  if (left < gap) {
+    left = gap;
+  }
+
+  // Set calculated positions
+  flyout.style.top = top + "px";
+  flyout.style.left = left + "px";
+  flyout.style.visibility = "visible";
+}
+
+// Get references to the battery button and flyout
+const batteryButton = document.getElementById("battery-button");
+const batteryFlyout = document.getElementById("battery-flyout");
+
+batteryButton.addEventListener("click", function (e) {
+  e.stopPropagation();
+
+  // If flyout is already visible, hide it and return
+  if (batteryFlyout.style.display === "block") {
+    batteryFlyout.style.display = "none";
+    return;
+  }
+
+  // Use the Battery API if supported
+  if (navigator.getBattery) {
+    navigator.getBattery().then(function (battery) {
+      let levelPercent = Math.round(battery.level * 100) + "%";
+      let status = battery.charging ? "Charging" : "Discharging";
+      let timeInfo = battery.charging ? formatTime(battery.chargingTime) : formatTime(battery.dischargingTime);
+
+      // Build the expanded content for the flyout
+      batteryFlyout.innerHTML = `
+        <div style="margin-bottom:5px;"><strong>Battery Level:</strong> ${levelPercent}</div>
+        <div style="margin-bottom:5px;"><strong>Status:</strong> ${status}</div>
+        <div style="margin-bottom:5px;"><strong>Time:</strong> ${timeInfo}</div>
+      `;
+
+      // Now position the flyout after content has updated
+      positionFlyout(batteryFlyout, batteryButton, 10);
+    });
+  } else {
+    batteryFlyout.innerHTML = "<div>Battery information not supported.</div>";
+    positionFlyout(batteryFlyout, batteryButton, 10);
+  }
+});
+
+// Hide the battery flyout when clicking outside of it
+document.addEventListener("click", function (e) {
+  if (
+    batteryFlyout.style.display === "block" &&
+    !batteryFlyout.contains(e.target) &&
+    e.target !== batteryButton
+  ) {
+    batteryFlyout.style.display = "none";
+  }
+});
+
+
+
+/********************** Sound Flyout Functionality **********************/
+const soundButton = document.getElementById("sound-button");
+const soundFlyout = document.getElementById("sound-flyout");
+const volumeSlider = document.getElementById("volume-slider");
+const muteButton = document.getElementById("mute-button");
+let isMuted = false;
+let currentVolume = 50;
+soundButton.addEventListener("click", function (e) {
+  e.stopPropagation();
+  if (soundFlyout.style.display === "block") {
+    soundFlyout.style.display = "none";
+  } else {
+    soundFlyout.style.display = "block";
+    let rect = soundButton.getBoundingClientRect();
+    soundFlyout.style.top = rect.top - soundFlyout.offsetHeight - 10 + "px";
+    soundFlyout.style.left = rect.left + "px";
+  }
+});
+volumeSlider.addEventListener("input", function (e) {
+  currentVolume = e.target.value;
+  if (currentVolume == 0) {
+    isMuted = true;
+    muteButton.textContent = "Unmute";
+  } else {
+    if (isMuted) {
+      isMuted = false;
+      muteButton.textContent = "Mute";
+    }
+  }
+});
+muteButton.addEventListener("click", function (e) {
+  isMuted = !isMuted;
+  if (isMuted) {
+    muteButton.textContent = "Unmute";
+    volumeSlider.value = 0;
+    currentVolume = 0;
+  } else {
+    muteButton.textContent = "Mute";
+    volumeSlider.value = 50;
+    currentVolume = 50;
+  }
+});
+document.addEventListener("click", function (e) {
+  if (
+    soundFlyout.style.display === "block" &&
+    !soundFlyout.contains(e.target) &&
+    e.target !== soundButton
+  ) {
+    soundFlyout.style.display = "none";
+  }
+});
+/********************** Calendar Flyout Functionality *********************/
+
+// --- Helper Functions ---
+
+// Generate a full month calendar as an HTML table.
+// The month parameter is zero-indexed (0 = January, 11 = December).
+function generateCalendar(year, month) {
+  let firstDay = new Date(year, month, 1);
+  let startingDay = firstDay.getDay(); // 0 (Sun) to 6 (Sat)
+  let lastDay = new Date(year, month + 1, 0);
+  let monthLength = lastDay.getDate();
+
+  let calendarHtml = '<table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 13px;">';
+  calendarHtml += '<thead><tr>';
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  daysOfWeek.forEach(day => {
+    calendarHtml += `<th style="padding: 5px; background: rgba(100,100,100,0.3); border: 1px solid rgba(0,0,0,0.1);">${day}</th>`;
+  });
+  calendarHtml += '</tr></thead>';
+  calendarHtml += '<tbody>';
+
+  let date = 1;
+  
+  // Build up to 6 rows (weeks)
+  for (let i = 0; i < 6; i++) {
+    calendarHtml += '<tr>';
+    for (let j = 0; j < 7; j++) {
+      if (i === 0 && j < startingDay) {
+        // Empty cells before the first day of the month
+        calendarHtml += '<td style="padding: 5px; border: 1px solid rgba(0,0,0,0.1);"></td>';
+      } else if (date > monthLength) {
+        // Empty cells after the last day
+        calendarHtml += '<td style="padding: 5px; border: 1px solid rgba(0,0,0,0.1);"></td>';
+      } else {
+        // Highlight today's date (if it matches)
+        let today = new Date();
+        let highlight = "";
+        if (today.getFullYear() === year && today.getMonth() === month && today.getDate() === date) {
+          highlight = 'background: rgba(0, 120, 215, 0.3);';
+        }
+        calendarHtml += `<td style="padding: 5px; border: 1px solid rgba(0,0,0,0.1); ${highlight}">${date}</td>`;
+        date++;
+      }
+    }
+    calendarHtml += '</tr>';
+    if (date > monthLength) break;
+  }
+  calendarHtml += '</tbody></table>';
+  return calendarHtml;
+}
+
+// Populate the calendar flyout container with a header and full calendar.
+function populateCalendarFlyout() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // Month is 0-indexed.
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June", 
+    "July", "August", "September", "October", "November", "December"
+  ];
+  
+  // Update the header of the flyout to show current month and year.
+  document.getElementById("calendar-header").innerText = `${monthNames[month]} ${year}`;
+  
+  // Render a full calendar using the helper function.
+  const calendarBody = document.getElementById("calendar-body");
+  calendarBody.innerHTML = generateCalendar(year, month);
+}
+
+// A generic function to position a flyout relative to a reference element.
+// The flyout is temporarily made visible (but hidden) to compute its dimensions.
+function positionFlyout(flyout, referenceElement, gap = 10) {
+  flyout.style.visibility = "hidden";
+  flyout.style.display = "block"; // Ensure dimensions can be read.
+
+  const flyoutWidth = flyout.offsetWidth;
+  const flyoutHeight = flyout.offsetHeight;
+  const rect = referenceElement.getBoundingClientRect();
+
+  // Attempt to place the flyout above the reference element.
+  let top = rect.top - flyoutHeight - gap;
+  let left = rect.left;
+
+  // If the flyout would be off the top, position it below.
+  if (top < 0) {
+    top = rect.bottom + gap;
+  }
+
+  // Prevent overflow to the right.
+  if (left + flyoutWidth > window.innerWidth) {
+    left = window.innerWidth - flyoutWidth - gap;
+  }
+  // Prevent overflow to the left.
+  if (left < gap) {
+    left = gap;
+  }
+
+  flyout.style.top = top + "px";
+  flyout.style.left = left + "px";
+  flyout.style.visibility = "visible";
+}
+
+// --- Flyout Toggling: Bind the Calendar Flyout to the Clock Container ---
+
+// Assumes you have an existing element with the id "clock-container" (the taskbar clock).
+const clockContainer = document.getElementById("clock-container");
+const clockFlyout = document.getElementById("clock-flyout");
+
+// Toggle the calendar flyout when clicking on the clock container.
+clockContainer.addEventListener("click", function(e) {
+  e.stopPropagation();
+  // If the flyout is currently displayed, hide it.
+  if (clockFlyout.style.display === "block") {
+    clockFlyout.style.display = "none";
+    return;
+  }
+  // Build the full calendar (populate the header and body).
+  populateCalendarFlyout();
+  // Position the calendar flyout relative to the clock container.
+  positionFlyout(clockFlyout, clockContainer, 10);
+});
+
+// Global click handler to hide the calendar flyout if the user clicks outside it.
+document.addEventListener("click", function(e) {
+  if (
+    clockFlyout.style.display === "block" &&
+    !clockFlyout.contains(e.target) &&
+    e.target !== clockContainer
+  ) {
+    clockFlyout.style.display = "none";
+  }
+});
+
+
+/********************** Wi‑Fi Flyout Functionality **********************/
+/** NETWORKS **/
+
+function renderWifiNetworks() {
+  // Clear the current flyout content
+  wifiFlyout.innerHTML = "<h4>Available Networks</h4>";
+  
+  // Create an unordered list to host network items
+  let list = document.createElement("ul");
+  list.style.listStyle = "none";
+  list.style.padding = "0";
+  list.style.margin = "10px 0 0 0";
+  
+  wifiNetworks.forEach((network, index) => {
+    let listItem = document.createElement("li");
+    listItem.style.marginBottom = "5px";
+    listItem.style.display = "flex";
+    listItem.style.alignItems = "center";
+    
+    // Create a span for the network name
+    let nameSpan = document.createElement("span");
+    nameSpan.innerText = network.ssid;
+    listItem.appendChild(nameSpan);
+    
+    // Create a button for connection action
+    let actionButton = document.createElement("button");
+    actionButton.style.marginLeft = "10px";
+    actionButton.style.padding = "2px 6px";
+    actionButton.style.border = "none";
+    actionButton.style.borderRadius = "3px";
+    actionButton.style.cursor = "pointer";
+    actionButton.innerText = network.connected ? "Disconnect" : "Connect";
+    
+    // Set the click event for the button
+    actionButton.addEventListener("click", function(e) {
+      // Prevent click bubbling so the flyout doesn't close immediately.
+      e.stopPropagation();
+      
+      // Example logic: if connecting to a network, disconnect any previously connected network.
+      if (!network.connected) {
+        wifiNetworks.forEach(net => net.connected = false);
+      }
+      
+      // Toggle the connection status
+      wifiNetworks[index].connected = !wifiNetworks[index].connected;
+      
+      // Re-render the list so that the display reflects the new state
+      renderWifiNetworks();
+    });
+    
+    listItem.appendChild(actionButton);
+    list.appendChild(listItem);
+  });
+  
+  wifiFlyout.appendChild(list);
+}
+
+/*****/
+
+const wifiButton = document.getElementById("wifi-button");
+const wifiFlyout = document.getElementById("wifi-flyout");
+
+wifiButton.addEventListener("click", function (e) {
+  e.stopPropagation();
+
+  // Toggle off if already showing.
+  if (wifiFlyout.style.display === "block") {
+    wifiFlyout.style.display = "none";
+    return;
+  }
+
+  // Render your dynamic content first.
+  renderWifiNetworks();
+
+  // Temporarily make the flyout visible (but hidden from view) to measure its dimensions.
+  wifiFlyout.style.visibility = "hidden";
+  wifiFlyout.style.display = "block";
+
+  // Retrieve the flyout's dimensions.
+  let flyoutWidth = wifiFlyout.offsetWidth;
+  let flyoutHeight = wifiFlyout.offsetHeight;
+
+  // Get the wifi button’s bounding rectangle.
+  let rect = wifiButton.getBoundingClientRect();
+
+  // Calculate the initial top and left positions.
+  let top = rect.top - flyoutHeight - 10; // 10px margin above the button.
+  let left = rect.left;
+
+  // If the flyout would go off the top, show it below the button.
+  if (top < 0) {
+    top = rect.bottom + 10;
+  }
+
+  // If the flyout’s right edge is beyond the viewport, adjust it.
+  if (left + flyoutWidth > window.innerWidth) {
+    left = window.innerWidth - flyoutWidth - 10; // 10px margin from the right edge.
+  }
+
+  // Ensure we don’t push it off the left side.
+  if (left < 0) {
+    left = 10;
+  }
+
+  // Set the computed positions.
+  wifiFlyout.style.top = top + "px";
+  wifiFlyout.style.left = left + "px";
+
+  // Reveal the flyout.
+  wifiFlyout.style.visibility = "visible";
+});
+
+// Hide the flyout when clicking outside.
+document.addEventListener("click", function (e) {
+  if (
+    wifiFlyout.style.display === "block" &&
+    !wifiFlyout.contains(e.target) &&
+    e.target !== wifiButton
+  ) {
+    wifiFlyout.style.display = "none";
+  }
+});
+
+
+
+
+/********************** Power Button Functionality **********************/
+const powerMenuItem = document.getElementById("start-menu-power");
+powerMenuItem.addEventListener("click", function () {
+  if (confirm("Are you sure you want to shut down?")) {
+    // Create a full-screen shutdown overlay
+    let shutdownOverlay = document.createElement("div");
+    shutdownOverlay.id = "shutdown-overlay";
+    shutdownOverlay.style.position = "fixed";
+    shutdownOverlay.style.top = "0";
+    shutdownOverlay.style.left = "0";
+    shutdownOverlay.style.width = "100%";
+    shutdownOverlay.style.height = "100%";
+    shutdownOverlay.style.backgroundColor = "#357EC7";
+    shutdownOverlay.style.zIndex = "3000";
+    shutdownOverlay.style.display = "flex";
+    shutdownOverlay.style.justifyContent = "center";
+    shutdownOverlay.style.alignItems = "center";
+    shutdownOverlay.style.color = "white";
+    shutdownOverlay.style.fontSize = "36px";
+    shutdownOverlay.style.opacity = "0";
+    shutdownOverlay.style.transition = "opacity 1s ease";
+    shutdownOverlay.innerText = "Shutting down...";
+    document.body.appendChild(shutdownOverlay);
+    // Fade in the overlay
+    setTimeout(() => {
+      shutdownOverlay.style.opacity = "1";
+    }, 10);
+    // After a short delay, simulate shutdown by replacing the page content
+    setTimeout(function () {
+      document.body.innerHTML = "";
+      let offMessage = document.createElement("div");
+      offMessage.style.position = "fixed";
+      offMessage.style.top = "50%";
+      offMessage.style.left = "50%";
+      offMessage.style.transform = "translate(-50%, -50%)";
+      offMessage.style.color = "orange";
+      offMessage.style.fontSize = "36px";
+      offMessage.innerText = "It's now safe to turn off your computer.";
+      document.body.appendChild(offMessage);
+    }, 2000);
+    setTimeout(function () {
+      location.reload(true);
+    }, 6000)
+  }
+});
+
+  /********************** Recycle Bin Icon Functionality **********************/
+  (function() {
+      const recycleBin = document.getElementById("recycle-bin-icon");
+
+  // Make the Recycle Bin draggable
+  let isDragging = false, offsetX, offsetY;
+  recycleBin.addEventListener("mousedown", function(e) {
+    isDragging = true;
+    offsetX = e.clientX - recycleBin.offsetLeft;
+    offsetY = e.clientY - recycleBin.offsetTop;
+    recycleBin.style.transition = "none";
+   });
+   document.addEventListener("mousemove", function(e) {
+     if (isDragging) {
+       recycleBin.style.left = (e.clientX - offsetX) + "px";
+       recycleBin.style.top = (e.clientY - offsetY) + "px";
+     }
+   });
+   document.addEventListener("mouseup", function() {
+     isDragging = false;
+     recycleBin.style.transition = "all 0.2s";
+   });
+   document.getElementById("notepad-save").addEventListener("click", function () {
+// Retrieve the text from the textarea
+const text = document.getElementById("notepad-textarea").value;
+
+// Create a Blob with the text data
+const blob = new Blob([text], { type: "text/plain" });
+
+// Create a temporary link element
+const link = document.createElement("a");
+
+// Create an object URL for the Blob and set the download attribute
+link.href = URL.createObjectURL(blob);
+link.download = "Untitled.txt";
+
+// Programmatically click the link to trigger the download
+link.click();
+
+// Optionally, revoke the object URL after a short delay to free resources
+setTimeout(() => URL.revokeObjectURL(link.href), 100);
+});
+// Use the correct ID "notepad-app"
+const notepadIcon = document.getElementById("notepad-app");
+notepadIcon.addEventListener("click", function () {
+// Show the notepad window when clicking the taskbar button.
+document.getElementById("notepad-window").style.display = "block";
+});
+// Get Notepad window and its control buttons.
+const notepadWindow = document.getElementById("notepad-window");
+const notepadClose = document.getElementById("notepad-close");
+const notepadMinimize = document.getElementById("notepad-minimize");
+const notepadMaximize = document.getElementById("notepad-maximize");
+
+// Close button: hide the notepad window.
+notepadClose.addEventListener("click", function () {
+notepadWindow.style.display = "none";
+});
+
+// Minimize button: toggle the visibility of the window's body.
+notepadMinimize.addEventListener("click", function () {
+const bodyContent = notepadWindow.querySelector(".window-body");
+bodyContent.style.display = (bodyContent.style.display === "none") ? "block" : "none";
+});
+
+// Maximize button: toggle full-screen and restore.
+notepadMaximize.addEventListener("click", function () {
+if (notepadWindow.classList.contains("maximized")) {
+// Restore previous size and position.
+notepadWindow.style.left = notepadWindow.dataset.originalLeft || "100px";
+notepadWindow.style.top = notepadWindow.dataset.originalTop || "100px";
+notepadWindow.style.width = notepadWindow.dataset.originalWidth || "400px";
+notepadWindow.style.height = notepadWindow.dataset.originalHeight || "";
+notepadWindow.classList.remove("maximized");
+} else {
+// Save the current position and size.
+notepadWindow.dataset.originalLeft = notepadWindow.style.left;
+notepadWindow.dataset.originalTop = notepadWindow.style.top;
+notepadWindow.dataset.originalWidth = notepadWindow.style.width;
+notepadWindow.dataset.originalHeight = notepadWindow.style.height;
+// Maximize to fill the desktop.
+notepadWindow.style.left = "0";
+notepadWindow.style.top = "0";
+notepadWindow.style.width = "100%";
+notepadWindow.style.height = "100%";
+notepadWindow.classList.add("maximized");
+}
+});
+
+
+notepadIcon.addEventListener("click", function () {
+notepadWindow.style.display = "block";
+});
+(function () {
+// Get the notepad window element
+const notepadWindow = document.getElementById("notepad-window");
+
+// (Optional) Set initial position if not already set.
+if (!notepadWindow.style.left) notepadWindow.style.left = "100px";
+if (!notepadWindow.style.top) notepadWindow.style.top = "100px";
+
+// Get the header of the notepad window (the area used for dragging)
+const header = notepadWindow.querySelector(".window-header");
+
+// Set up variables to track dragging
+let isDragging = false, offsetX, offsetY;
+
+// When the user presses the mouse button on the header...
+header.addEventListener("mousedown", function (e) {
+isDragging = true;
+// Calculate the offset between the mouse and the window's top-left corner
+offsetX = e.clientX - notepadWindow.offsetLeft;
+offsetY = e.clientY - notepadWindow.offsetTop;
+// Disable any transition for smoother dragging
+notepadWindow.style.transition = "none";
+});
+
+// When the mouse moves, update the window's position if dragging is active
+document.addEventListener("mousemove", function (e) {
+if (isDragging) {
+notepadWindow.style.left = (e.clientX - offsetX) + "px";
+notepadWindow.style.top = (e.clientY - offsetY) + "px";
+}
+});
+
+// When the mouse button is released, stop the dragging and optionally add a transition
+document.addEventListener("mouseup", function () {
+isDragging = false;
+notepadWindow.style.transition = "all 0.2s";
+});
+})();
+
+   // Open the Recycle Bin folder when double-clicked
+   recycleBin.addEventListener("dblclick", function() {
+     const explorerWindow = document.getElementById("explorer-window");
+     explorerWindow.style.display = "block";
+
+     // Repopulate folders (ensuring your file system includes "Recycle Bin")
+     populateExplorerFolders();
+
+     // Simulate a click on the "Recycle Bin" folder item shortly after
+    setTimeout(() => {
+      const rbFolderElem = Array.from(document.querySelectorAll("#explorer-folders li"))
+                                  .find(li => li.innerText === "Recycle Bin");
+      if (rbFolderElem) {
+        rbFolderElem.click();
+      }
+    }, 10);
+  });
+})();
+/********************** Notepad Draggable Functionality **********************/
+(function () {
+// Get the notepad window element.
+const notepadWindow = document.getElementById("notepad-window");
+
+// Set an initial position if none exist.
+if (!notepadWindow.style.left) {
+notepadWindow.style.left = "100px";
+}
+if (!notepadWindow.style.top) {
+notepadWindow.style.top = "100px";
+}
+
+// Get the header from the notepad window.
+const header = notepadWindow.querySelector(".window-header");
+
+// Make sure the header exists.
+if (!header) {
+console.error("Notepad header not found. Ensure it has the 'window-header' class.");
+return;
+}
+
+let isDragging = false, offsetX = 0, offsetY = 0;
+
+// When the mouse is pressed on the header...
+header.addEventListener("mousedown", function (e) {
+isDragging = true;
+// Calculate the offset. Use parseInt to convert CSS string to a number.
+offsetX = e.clientX - parseInt(notepadWindow.style.left, 10);
+offsetY = e.clientY - parseInt(notepadWindow.style.top, 10);
+notepadWindow.style.transition = "none";  // Remove transition for immediate drag movement
+});
+
+// When the mouse moves, reposition the window.
+document.addEventListener("mousemove", function (e) {
+if (isDragging) {
+notepadWindow.style.left = (e.clientX - offsetX) + "px";
+notepadWindow.style.top = (e.clientY - offsetY) + "px";
+}
+});
+
+// When the mouse button is released, stop dragging and re-enable transition.
+document.addEventListener("mouseup", function () {
+isDragging = false;
+notepadWindow.style.transition = "all 0.2s";
+});
+})();
+/* window.addEventListener("load", function () {
+Wait for 2 seconds before fading out the splash screen.
+setTimeout(function () {
+const startupScreen = document.getElementById("startup-screen");
+startupScreen.classList.add("hidden");
+// Optionally, remove the element from the DOM after the transition:
+setTimeout(function () {
+startupScreen.parentNode.removeChild(startupScreen);
+}, 500); // Matches the CSS transition duration
+}, 2000);
+});
+*/
+const desktop = document.getElementById("desktop");
+let selectionRect = null;
+let startX = 0;
+let startY = 0;
+
+desktop.addEventListener("mousedown", function (e) {
+// Allow selection if the click is on the desktop background OR on a desktop icon.
+if ((e.target === desktop || e.target.classList.contains("desktop-icon")) && !e.shiftKey) {
+// Remove any existing "selected" classes
+desktop.querySelectorAll(".desktop-icon").forEach((icon) => {
+icon.classList.remove("selected");
+});
+
+startX = e.clientX;
+startY = e.clientY;
+
+selectionRect = document.createElement("div");
+selectionRect.className = "selection-rectangle";
+selectionRect.style.left = `${startX}px`;
+selectionRect.style.top = `${startY}px`;
+selectionRect.style.width = "0px";
+selectionRect.style.height = "0px";
+
+desktop.appendChild(selectionRect);
+}
+});
+
+
+
+desktop.addEventListener("mousemove", function (e) {
+if (!selectionRect) return; // Only update if selection is active
+
+const currentX = e.clientX;
+const currentY = e.clientY;
+const rectLeft = Math.min(startX, currentX);
+const rectTop = Math.min(startY, currentY);
+const rectWidth = Math.abs(startX - currentX);
+const rectHeight = Math.abs(startY - currentY);
+
+selectionRect.style.left = rectLeft + "px";
+selectionRect.style.top = rectTop + "px";
+selectionRect.style.width = rectWidth + "px";
+selectionRect.style.height = rectHeight + "px";
+});
+
+desktop.addEventListener("mouseup", function (e) {
+if (selectionRect) {
+// Get the bounding rectangle of the selection area
+const selRect = selectionRect.getBoundingClientRect();
+
+// Query all desktop icons
+const icons = desktop.querySelectorAll(".desktop-icon");
+
+// Loop through each icon to check intersection
+icons.forEach(function (icon) {
+const iconRect = icon.getBoundingClientRect();
+const isIntersecting = (
+  iconRect.left < selRect.right &&
+  iconRect.right > selRect.left &&
+  iconRect.top < selRect.bottom &&
+  iconRect.bottom > selRect.top
+);
+
+// Toggle the "selected" class based on intersection
+if (isIntersecting) {
+  icon.classList.add("selected");
+} else {
+  icon.classList.remove("selected");
+}
+});
+
+// Remove the selection rectangle from the DOM
+desktop.removeChild(selectionRect);
+selectionRect = null;
+}
+});
+
+
+// Also remove the rectangle if the mouse leaves the desktop.
+desktop.addEventListener("mouseleave", function () {
+if (selectionRect) {
+desktop.removeChild(selectionRect);
+selectionRect = null;
+}
+});
+
+
+/**Desktop Context Menu ***/
+// Get references to the desktop element and the context menu.
+const contextMenu = document.getElementById("desktop-context-menu");
+
+desktop.addEventListener("contextmenu", function(e) {
+  e.preventDefault();
+  contextMenu.style.display = "block";
+  contextMenu.style.top = e.pageY + "px";
+  contextMenu.style.left = e.pageX + "px";
+});
+
+document.addEventListener("click", function(e) {
+  if (contextMenu.style.display === "block") {
+    contextMenu.style.display = "none";
+  }
+});
+
+// OPTIONAL: Add event listeners to the context menu items to perform actions.
+document.getElementById("cm-refresh").addEventListener("click", function(e) {
+  // Example: Reload the desktop (or refresh icons)
+  // For instance, you might call a refresh function here.
+  console.log("Refresh action selected.");
+});
+document.getElementById("cm-new").addEventListener("click", function(e) {
+  // Example: Create a new file or shortcut functionality.
+  console.log("New action selected.");
+});
+// Add similar listeners for the other items as needed.
+
+
+//Taskbar Context Menu
+// Get references to the taskbar and the new context menu.
+const taskbar = document.getElementById("taskbar");
+const taskbarContextMenu = document.getElementById("taskbar-context-menu");
+const tbSettingsButton = document.getElementById("tb-settings");
+const tbTaskManagerButton = document.getElementById("tb-taskmanager");
+
+// When you right-click on the taskbar, show the custom menu.
+taskbar.addEventListener("contextmenu", function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  // Temporarily display the menu to get its dimensions
+  taskbarContextMenu.style.display = "block";
+  taskbarContextMenu.style.visibility = "hidden"; // Hide it visually while measuring
+
+  const menuWidth = taskbarContextMenu.offsetWidth;
+  const menuHeight = taskbarContextMenu.offsetHeight;
+  let posX = e.pageX;
+  let posY = e.pageY;
+
+  // Check if the menu goes off the right edge
+  if (posX + menuWidth > window.innerWidth) {
+    posX = window.innerWidth - menuWidth - 10; // 10px margin
+  }
+
+  // Check if the menu goes off the bottom edge
+  if (posY + menuHeight > window.innerHeight) {
+    posY = window.innerHeight - menuHeight - 10; // 10px margin
+  }
+
+  // Reset visibility and set new positions
+  taskbarContextMenu.style.visibility = "visible";
+  taskbarContextMenu.style.top = posY + "px";
+  taskbarContextMenu.style.left = posX + "px";
+});
+
+
+// Hide the taskbar context menu when clicking anywhere outside of it.
+document.addEventListener("click", function (e) {
+  if (
+    taskbarContextMenu.style.display === "block" &&
+    !taskbarContextMenu.contains(e.target)
+  ) {
+    taskbarContextMenu.style.display = "none";
+  }
+});
+
+
+//taskbar context menu link functionality
+// When the "Taskbar Settings" option is clicked...
+tbSettingsButton.addEventListener("click", function () {
+  // Hide the context menu first
+  taskbarContextMenu.style.display = "none";
+  
+  // Show the Settings window (assuming it has id="settings-window")
+  const settingsWindow = document.getElementById("settings-window");
+  settingsWindow.style.display = "block";
+  
+  // Simulate a click on the Personalization section in the Settings sidebar.
+  const personalizationOption = settingsWindow.querySelector('[data-section="personalization"]');
+  if (personalizationOption) {
+    personalizationOption.click();
+  }
+});
+
+// When the "Task Manager" option is clicked...
+// Event listener for Task Manager (to open simulated Task Manager)
+tbTaskManagerButton.addEventListener("click", function () {
+  // Hide the context menu
+  taskbarContextMenu.style.display = "none";
+  
+  // Show the simulated Task Manager window (assuming it has id="taskmanager-window")
+  const taskManagerWindow = document.getElementById("taskmanager-window");
+  taskManagerWindow.style.display = "block";
+  
+  // (Optional) If you want to initialize or update its content, do so here.
+});
+
+// (Optional) Now add functionality to close/minimize the Task Manager window.
+// Example for the close button:
+const taskManagerClose = document.getElementById("taskmanager-close");
+taskManagerClose.addEventListener("click", function () {
+  document.getElementById("taskmanager-window").style.display = "none";
+});
+
+// TASK MANAGER DRAGGABLE AND WINDOW CONTROLS
+
+(function () {
+  const taskManagerWindow = document.getElementById("taskmanager-window");
+  if (!taskManagerWindow) return; // Exit if not found
+
+  // DRAGGING FUNCTIONALITY
+  const header = taskManagerWindow.querySelector(".window-header");
+  let isDragging = false, offsetX = 0, offsetY = 0;
+
+  header.addEventListener("mousedown", function (e) {
+    isDragging = true;
+    // Calculate offset from the window's top-left corner
+    offsetX = e.clientX - taskManagerWindow.offsetLeft;
+    offsetY = e.clientY - taskManagerWindow.offsetTop;
+    taskManagerWindow.style.transition = "none";
+  });
+  
+  document.addEventListener("mousemove", function (e) {
+    if (isDragging) {
+      taskManagerWindow.style.left = (e.clientX - offsetX) + "px";
+      taskManagerWindow.style.top = (e.clientY - offsetY) + "px";
+    }
+  });
+  
+  document.addEventListener("mouseup", function () {
+    isDragging = false;
+    taskManagerWindow.style.transition = "all 0.2s";
+  });
+
+  // MINIMIZE FUNCTIONALITY
+  const taskManagerMinimize = document.getElementById("taskmanager-minimize");
+  taskManagerMinimize.addEventListener("click", function () {
+    const bodyContent = taskManagerWindow.querySelector(".window-body");
+    // Toggle visibility of the Task Manager's main content
+    bodyContent.style.display = (bodyContent.style.display === "none") ? "block" : "none";
+  });
+
+  // MAXIMIZE FUNCTIONALITY
+  const taskManagerMaximize = document.getElementById("taskmanager-maximize");
+  taskManagerMaximize.addEventListener("click", function () {
+    if (taskManagerWindow.classList.contains("maximized")) {
+      // Restore original dimensions and position, stored in dataset
+      taskManagerWindow.style.left = taskManagerWindow.dataset.originalLeft || "100px";
+      taskManagerWindow.style.top = taskManagerWindow.dataset.originalTop || "100px";
+      taskManagerWindow.style.width = taskManagerWindow.dataset.originalWidth || "600px";
+      taskManagerWindow.style.height = taskManagerWindow.dataset.originalHeight || "400px";
+      taskManagerWindow.classList.remove("maximized");
+    } else {
+      // Save current position and size
+      taskManagerWindow.dataset.originalLeft = taskManagerWindow.style.left;
+      taskManagerWindow.dataset.originalTop = taskManagerWindow.style.top;
+      taskManagerWindow.dataset.originalWidth = taskManagerWindow.style.width;
+      taskManagerWindow.dataset.originalHeight = taskManagerWindow.style.height;
+      // Maximize to fill the screen
+      taskManagerWindow.style.left = "0";
+      taskManagerWindow.style.top = "0";
+      taskManagerWindow.style.width = "100%";
+      taskManagerWindow.style.height = "100%";
+      taskManagerWindow.classList.add("maximized");
+    }
+  });
+
+  // CLOSE FUNCTIONALITY (if not already handled)
+  const taskManagerClose = document.getElementById("taskmanager-close");
+  taskManagerClose.addEventListener("click", function () {
+    taskManagerWindow.style.display = "none";
+  });
+})();
+document.addEventListener("DOMContentLoaded", function () {
+  // Append the context menu to the body so it's not clipped by parent containers
+  document.body.appendChild(startContextMenu);
+});
+
+// Get references to the new button and flyout
+const hiddenIconsButton = document.getElementById("hidden-icons-button");
+const hiddenIconsFlyout = document.getElementById("hidden-icons-flyout");
+
+// A helper function to position a flyout relative to a reference element.
+// (You already have similar functions; feel free to reuse or adapt one of them.)
+// Assume this function is already defined for positioning:
+function positionFlyout(flyout, referenceElement, gap = 10) {
+  // Temporarily show the flyout to measure dimensions
+  flyout.style.visibility = "hidden";
+  flyout.style.display = "block";
+  
+  const flyoutWidth = flyout.offsetWidth;
+  const flyoutHeight = flyout.offsetHeight;
+  const rect = referenceElement.getBoundingClientRect();
+  
+  // Calculate a centered left coordinate relative to the button
+  let left = rect.left + (rect.width / 2) - (flyoutWidth / 2);
+  let top = rect.top - flyoutHeight - gap;
+  
+  // If there isn’t enough space above, position the flyout below the button.
+  if (top < 0) {
+    top = rect.bottom + gap;
+  }
+  
+  // Ensure the flyout doesn’t overflow the viewport horizontally.
+  if (left + flyoutWidth > window.innerWidth) {
+    left = window.innerWidth - flyoutWidth - gap;
+  }
+  if (left < gap) {
+    left = gap;
+  }
+  
+  flyout.style.top = top + "px";
+  flyout.style.left = left + "px";
+  flyout.style.visibility = "visible";
+}
+
+
+hiddenIconsButton.addEventListener("click", function(e) {
+  e.stopPropagation();
+  
+  // Toggle the open class for the animation
+  if (hiddenIconsFlyout.classList.contains("open")) {
+    hiddenIconsFlyout.classList.remove("open");
+  } else {
+    // Before animating, position the flyout relative to the button.
+    hiddenIconsFlyout.classList.remove("open");
+    hiddenIconsFlyout.style.visibility = "hidden";
+    hiddenIconsFlyout.style.display = "block";
+    positionFlyout(hiddenIconsFlyout, hiddenIconsButton, 10);
+    
+    // Add the 'open' class so the CSS transition kicks in.
+    setTimeout(function() {
+      hiddenIconsFlyout.classList.add("open");
+    }, 10);
+  }
+});
+
+// Hide the flyout when clicking outside.
+document.addEventListener("click", function(e) {
+  if (
+    hiddenIconsFlyout.classList.contains("open") &&
+    !hiddenIconsFlyout.contains(e.target) &&
+    e.target !== hiddenIconsButton
+  ) {
+    hiddenIconsFlyout.classList.remove("open");
+  }
+});
+
+    </script>
+  </body>
+</html>
