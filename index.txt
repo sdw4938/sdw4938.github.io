@@ -164,18 +164,152 @@
         backdrop-filter: blur(10px);
       }
       /* Wi‑Fi Flyout Styling (New) */
-      #wifi-flyout {
-        position: absolute;
-        background-color: rgba(50, 50, 50, 0.7);
-        color: white;
-        padding: 10px;
-        border-radius: 5px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        display: none;
-        z-index: 1100;
-        font-size: 14px;
-        backdrop-filter: blur(10px);
-      }
+.wifi-flyout {
+  position: absolute;
+  background-color: rgba(50, 50, 50, 0.75);
+  color: #fff;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  width: 350px;
+  font-family: "Segoe UI", sans-serif;
+  z-index: 1001;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  
+  /* Start hidden and shifted + slightly scaled */
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  /* Do NOT include display here; our JS controls it */
+}
+
+.wifi-flyout.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+
+.wifi-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.wifi-header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.wifi-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.wifi-status {
+  font-size: 12px;
+  color: #ccc;
+  margin-top: 2px;
+}
+
+.wifi-properties {
+  background: none;
+  border: none;
+  color: #0078d7;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.wifi-networks {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.wifi-network {
+  display: flex;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.wifi-network:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.wifi-network.connected {
+  background-color: rgba(0, 120, 215, 0.3);
+}
+
+
+.wifi-network:last-child {
+  border-bottom: none;
+}
+
+.wifi-signal {
+  margin-right: 10px;
+  font-size: 20px; /* Adjust size according to your icon */
+}
+
+.wifi-network-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.network-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.network-detail {
+  font-size: 12px;
+  color: #aaa;
+}
+
+/* Wi-Fi flyout footer (tile container) */
+.wifi-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+/* Each tile */
+.wifi-tile {
+  flex: 1;
+  margin: 0 5px;
+  background-color: #3a3a3a;  /* a darker grey background */
+  border-radius: 4px;
+  text-align: center;
+  padding: 10px 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* Hover effect for tiles */
+.wifi-tile:hover {
+  background-color: #0078d7;
+}
+
+/* Icon styling; uses "Segoe MDL2 Assets" to match Windows 10 icons */
+.wifi-tile .tile-icon {
+  font-family: "Segoe MDL2 Assets";
+  font-size: 24px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Label styling */
+.wifi-tile .tile-label {
+  font-size: 12px;
+  font-weight: bold;
+  display: block;
+}
+
+
       /* Hidden Icons Flyout Styling */
 #hidden-icons-flyout {
   position: absolute;
@@ -792,6 +926,36 @@
   line-height: 1.2;     /* Control spacing between lines */
 }
 
+/* Ensure the entire Edge window body uses a column flex layout */
+#edge-window .window-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* The navigation bar should take its intrinsic height */
+#edge-window .edge-nav {
+  flex: 0 0 auto;
+}
+
+/* The content area takes up the remaining space */
+#edge-window .edge-content {
+  flex: 1 1 auto;
+  position: relative;
+}
+
+/* The iframe should fill its parent container */
+#edge-window .edge-content iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+
+
     </style>
   </head>
   <body>
@@ -1045,7 +1209,7 @@
       </div>
 
       <!-- Microsoft Edge App Window -->
-      <div id="edge-window" class="window" style="display: none;">
+      <div id="edge-window" class="window" style="display: none; height: 400px;">
         <div class="window-header">
           <!-- <img src="./images/browser.png" alt="App Icon" class="window-icon" /> -->
           <span class="mdl2-icon" style="font-size: 16px; margin-right: 8px;">&#xE774;</span>
@@ -1278,7 +1442,36 @@
         </div>
 
         <!-- Wi‑Fi Flyout -->
-        <div id="wifi-flyout">Connected to Internet</div>
+        <div id="wifi-flyout" class="wifi-flyout">
+  <div class="wifi-header">
+    <div class="wifi-header-info">
+      <span class="wifi-name">Home Wi‑Fi</span>
+      <span class="wifi-status">Connected • Secured</span>
+    </div>
+    <button class="wifi-properties">Properties</button>
+  </div>
+  <div class="wifi-networks">
+    <!-- Each network entry will be appended here -->
+      <div class="wifi-networks-container"></div>
+  </div>
+  <div class="wifi-footer">
+  <div class="wifi-tile" id="toggle-wifi">
+    <span class="tile-icon">&#xE701;</span>
+    <span class="tile-label">Wi‑Fi</span>
+  </div>
+  <div class="wifi-tile" id="toggle-airplane">
+    <span class="tile-icon">&#xE709;</span>
+    <span class="tile-label">Airplane</span>
+  </div>
+  <div class="wifi-tile" id="toggle-hotspot">
+    <span class="tile-icon">&#xE88A;</span>
+    <span class="tile-label">Hotspot</span>
+  </div>
+</div>
+
+</div>
+
+
         </div>
 
         <div id="recycle-bin-icon" class="desktop-icon">
@@ -1785,6 +1978,7 @@ edgeMaximize.addEventListener("click", function () {
     edgeWindow.classList.add("maximized");
   }
 });
+
 (function () {
   const header = edgeWindow.querySelector(".window-header");
   let isDragging = false, offsetX, offsetY;
@@ -2293,10 +2487,14 @@ document.addEventListener("click", function(e) {
 /** NETWORKS **/
 
 function renderWifiNetworks() {
-  // Clear the current flyout content
-  wifiFlyout.innerHTML = "<h4>Available Networks</h4>";
+  const networksContainer = wifiFlyout.querySelector('.wifi-networks-container');
+  // Clear only the dynamic content, leaving header and footer intact.
+  networksContainer.innerHTML = "";
   
-  // Create an unordered list to host network items
+  // Optionally add a heading if desired:
+  // networksContainer.innerHTML = "<h4>Available Networks</h4>";
+  
+  // Create an unordered list (or directly add elements) for the network items:
   let list = document.createElement("ul");
   list.style.listStyle = "none";
   list.style.padding = "0";
@@ -2322,20 +2520,13 @@ function renderWifiNetworks() {
     actionButton.style.cursor = "pointer";
     actionButton.innerText = network.connected ? "Disconnect" : "Connect";
     
-    // Set the click event for the button
+    // Attach the click event to update connection status
     actionButton.addEventListener("click", function(e) {
-      // Prevent click bubbling so the flyout doesn't close immediately.
       e.stopPropagation();
-      
-      // Example logic: if connecting to a network, disconnect any previously connected network.
       if (!network.connected) {
         wifiNetworks.forEach(net => net.connected = false);
       }
-      
-      // Toggle the connection status
       wifiNetworks[index].connected = !wifiNetworks[index].connected;
-      
-      // Re-render the list so that the display reflects the new state
       renderWifiNetworks();
     });
     
@@ -2343,74 +2534,93 @@ function renderWifiNetworks() {
     list.appendChild(listItem);
   });
   
-  wifiFlyout.appendChild(list);
+  networksContainer.appendChild(list);
 }
+
 
 /*****/
 
+// Consolidated Wi‑Fi flyout toggle code:
 const wifiButton = document.getElementById("wifi-button");
 const wifiFlyout = document.getElementById("wifi-flyout");
+// Append the flyout to the body so it isn’t clipped by its parent.
 
-wifiButton.addEventListener("click", function (e) {
-  e.stopPropagation();
 
-  // Toggle off if already showing.
-  if (wifiFlyout.style.display === "block") {
-    wifiFlyout.style.display = "none";
-    return;
+// Function to open the flyout with animation.
+function openWifiFlyout() {
+  renderWifiNetworks(); // update dynamic content
+  wifiFlyout.style.display = "block"; // ensure it's visible
+  
+  // Get bounding rectangle of the Wi‑Fi button.
+  const rect = wifiButton.getBoundingClientRect();
+  
+  // Force a reflow so that dimensions are available.
+  const flyoutWidth = wifiFlyout.offsetWidth;
+  const flyoutHeight = wifiFlyout.offsetHeight;
+  
+  // Calculate initial positions so the flyout is centered below the button.
+  let top = rect.bottom + 10; // 10px gap below the button
+  let left = rect.left + (rect.width / 2) - (flyoutWidth / 2);
+  
+  // Prevent horizontal overflow.
+  if (left < 10) left = 10;
+  if (left + flyoutWidth > window.innerWidth - 10) {
+    left = window.innerWidth - flyoutWidth - 10;
   }
-
-  // Render your dynamic content first.
-  renderWifiNetworks();
-
-  // Temporarily make the flyout visible (but hidden from view) to measure its dimensions.
-  wifiFlyout.style.visibility = "hidden";
-  wifiFlyout.style.display = "block";
-
-  // Retrieve the flyout's dimensions.
-  let flyoutWidth = wifiFlyout.offsetWidth;
-  let flyoutHeight = wifiFlyout.offsetHeight;
-
-  // Get the wifi button’s bounding rectangle.
-  let rect = wifiButton.getBoundingClientRect();
-
-  // Calculate the initial top and left positions.
-  let top = rect.top - flyoutHeight - 10; // 10px margin above the button.
-  let left = rect.left;
-
-  // If the flyout would go off the top, show it below the button.
-  if (top < 0) {
-    top = rect.bottom + 10;
+  
+  // Check if the flyout would extend off the bottom of the viewport.
+  if (top + flyoutHeight > window.innerHeight) {
+    // Position it above the button instead.
+    top = rect.top - flyoutHeight - 10;
+    // Clamp top if it goes too high.
+    if (top < 10) top = 10;
   }
-
-  // If the flyout’s right edge is beyond the viewport, adjust it.
-  if (left + flyoutWidth > window.innerWidth) {
-    left = window.innerWidth - flyoutWidth - 10; // 10px margin from the right edge.
-  }
-
-  // Ensure we don’t push it off the left side.
-  if (left < 0) {
-    left = 10;
-  }
-
-  // Set the computed positions.
+  
+  // Set the calculated positions.
   wifiFlyout.style.top = top + "px";
   wifiFlyout.style.left = left + "px";
+  
+  // Force a reflow and then add the "show" class to trigger the transition.
+  void wifiFlyout.offsetWidth;
+  wifiFlyout.classList.add("show");
+}
 
-  // Reveal the flyout.
-  wifiFlyout.style.visibility = "visible";
+
+// Function to close the flyout with animation.
+function closeWifiFlyout() {
+  // Remove the "show" class so that the flyout transitions to its hidden state.
+  wifiFlyout.classList.remove("show");
+  // When the transition (opacity) finishes, set display to "none".
+  wifiFlyout.addEventListener("transitionend", function handler(e) {
+    if (e.propertyName === "opacity") {
+      wifiFlyout.style.display = "none";
+      wifiFlyout.removeEventListener("transitionend", handler);
+    }
+  });
+}
+
+// Attach a single click listener to the Wi‑Fi button.
+wifiButton.addEventListener("click", function(e) {
+  e.stopPropagation();
+  // Toggle based on whether the flyout is already showing.
+  if (wifiFlyout.classList.contains("show")) {
+    closeWifiFlyout();
+  } else {
+    openWifiFlyout();
+  }
 });
 
-// Hide the flyout when clicking outside.
-document.addEventListener("click", function (e) {
+// Attach a document-level click listener to close the flyout if clicking outside.
+document.addEventListener("click", function(e) {
   if (
-    wifiFlyout.style.display === "block" &&
+    wifiFlyout.classList.contains("show") &&
     !wifiFlyout.contains(e.target) &&
     e.target !== wifiButton
   ) {
-    wifiFlyout.style.display = "none";
+    closeWifiFlyout();
   }
 });
+
 
 
 
