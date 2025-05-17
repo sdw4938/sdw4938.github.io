@@ -6,6 +6,13 @@
     <link rel="icon" type="image/png" href="./images/Windowslogo.svg" />
     <title>Windows 10 Simulation</title>
     <style>
+      @font-face {
+  font-family: 'Segoe MDL2 Assets';
+  src: url('/fonts/segmdl2.ttf') format('ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
       .mdl2-icon {
         font-family: "Segoe MDL2 Assets";
         font-size: 24px; /* adjust as needed */
@@ -176,6 +183,7 @@
   z-index: 1001;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  display: none;
   
   /* Start hidden and shifted + slightly scaled */
   opacity: 0;
@@ -187,6 +195,7 @@
 .wifi-flyout.show {
   opacity: 1;
   transform: translateY(0) scale(1);
+  display: block; /* Only allow interaction when opened */
 }
 
 
@@ -584,7 +593,7 @@
 
       #desktop-context-menu,
       #taskbar-context-menu {
-        position: absolute;
+        position: fixed; /* Prevents it from influencing document height */
         display: none;
         background: rgba(40, 40, 40, 0.95);
         border: 1px solid #333;
@@ -2553,6 +2562,9 @@ function openWifiFlyout() {
   
   // Get bounding rectangle of the Wi‑Fi button.
   const rect = wifiButton.getBoundingClientRect();
+
+   // **Make it visible before animating**
+    wifiFlyout.style.display = "block";
   
   // Force a reflow so that dimensions are available.
   const flyoutWidth = wifiFlyout.offsetWidth;
@@ -2969,20 +2981,43 @@ selectionRect = null;
 
 /**Desktop Context Menu ***/
 // Get references to the desktop element and the context menu.
-const contextMenu = document.getElementById("desktop-context-menu");
-
-desktop.addEventListener("contextmenu", function(e) {
+desktop.addEventListener("contextmenu", function (e) {
   e.preventDefault();
+
+  const contextMenu = document.getElementById("desktop-context-menu");
+  const viewportHeight = window.innerHeight;
+  const viewportWidth = window.innerWidth;
+
+  // Temporarily display to measure dimensions
+  contextMenu.style.visibility = "hidden";
   contextMenu.style.display = "block";
-  contextMenu.style.top = e.pageY + "px";
-  contextMenu.style.left = e.pageX + "px";
+  const menuRect = contextMenu.getBoundingClientRect();
+
+  // Calculate initial position
+  let posX = e.pageX;
+  let posY = e.pageY;
+
+  // Ensure it doesn't go off the bottom
+  if (posY + menuRect.height > viewportHeight) {
+    posY = viewportHeight - menuRect.height - 10; // Adjust if necessary
+  }
+
+  // Ensure it doesn't go off the right side
+  if (posX + menuRect.width > viewportWidth) {
+    posX = viewportWidth - menuRect.width - 10;
+  }
+
+  // Prevent negative positioning
+  posX = Math.max(10, posX);
+  posY = Math.max(10, posY);
+
+  // Apply corrected position
+  contextMenu.style.left = `${posX}px`;
+  contextMenu.style.top = `${posY}px`;
+  contextMenu.style.visibility = "visible";
 });
 
-document.addEventListener("click", function(e) {
-  if (contextMenu.style.display === "block") {
-    contextMenu.style.display = "none";
-  }
-});
+
 
 // OPTIONAL: Add event listeners to the context menu items to perform actions.
 document.getElementById("cm-refresh").addEventListener("click", function(e) {
@@ -3225,6 +3260,11 @@ document.addEventListener("click", function(e) {
   ) {
     hiddenIconsFlyout.classList.remove("open");
   }
+});
+
+// Disable browser context menu
+document.addEventListener("contextmenu", (event) => {
+  event.preventDefault();
 });
 
     </script>
